@@ -1,0 +1,40 @@
+/**
+ * Stylesheet
+ */
+
+@import 'settings'
+@import 'functions'
+@import 'reset'
+
+*, *:before, *:after
+    box-sizing: border-box
+
+html
+	height: 100%
+	font-size: 100%
+
+body
+	margin: 0
+	height: 100%
+	background-color: white
+	font-family: $font-primary
+	font-size: 1rem
+	line-height: 1
+	color: $color-text
+	background-color: $color-bg
+
+a
+	font-weight: bold
+	text-decoration: none
+	color: $color-text
+
+.wrap
+	margin: 0 auto
+	padding-left: $wrap-padding
+	padding-right: $wrap-padding
+	max-width: rem($body-width-max)
+	width: 100%
+
+// ----------------------------------------------------------------------------
+// Chart
+// ----------------------------------------------------------------------------

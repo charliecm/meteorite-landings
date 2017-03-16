@@ -1,0 +1,18 @@
+/**
+ * Functions
+ */
+
+// Converts unit to rem
+@function rem($target)
+    @return ($target / $base-em) + 0rem
+
+// Responsive breakpoints
+=bp-gt($width)
+    @media only screen and (min-width: ($width + 1))
+        @content
+=bp-lt($width)
+    @media only screen and (max-width: $width)
+        @content
+=bp-bt($width-min, $width-max)
+    @media only screen and (min-width: ($width-min + 1)) and (max-width: $width-max)
+        @content

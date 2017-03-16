@@ -1,0 +1,25 @@
+{
+  "name": "meteorite-landings",
+  "version": "1.0.0",
+  "description": "",
+  "author": "@charliecm",
+  "license": "MIT",
+  "repository": "https://github.com/charliecm/meteorite-landings",
+  "scripts": {
+    "clean": "rm -rf dist && mkdir dist",
+    "build:copy": "cpx 'src/**/*.{html,jpg,png,ico,js,csv}' dist -v",
+    "watch:copy": "cpx 'src/**/*.{html,jpg,png,ico,js,csv}' dist -v -w --no-initial",
+    "build:css": "node-sass src/css -o dist/css",
+    "watch:css": "node-sass -w src/css -o dist/css",
+    "livereload": "livereload dist -w 500",
+    "server": "http-server dist -p 8080 -s -o",
+    "build": "npm run clean && run-s build:*",
+    "watch": "npm run build && run-p watch:* server livereload"
+  },
+  "devDependencies": {
+    "cpx": "^1.5.0",
+    "http-server": "^0.9.0",
+    "livereload": "^0.6.0",
+    "npm-run-all": "^4.0.1"
+  }
+}
