@@ -24,9 +24,7 @@ body
 	background-color: $color-bg
 
 a
-	font-weight: bold
-	text-decoration: none
-	color: $color-text
+	color: inherit
 
 .wrap
 	margin: 0 auto
@@ -35,6 +33,90 @@ a
 	max-width: rem($body-width-max)
 	width: 100%
 
+.header__title
+	margin-top: rem(64px)
+	margin-bottom: rem(12px)
+	font-size: rem(48px)
+	font-weight: bold
+
+.header__description
+	margin-bottom: rem(48px)
+	font-size: rem(21px)
+	line-height: rem(27px)
+
+.footer
+	margin-top: rem(48px)
+	margin-bottom: rem(72px)
+	text-align: center
+	color: $color-highlight
+
 // ----------------------------------------------------------------------------
-// Chart
+// Trend Section
 // ----------------------------------------------------------------------------
+
+.trend-header__title
+	font-size: rem(27px)
+	font-weight: bold
+	margin-bottom: rem(12px)
+
+.trend-body
+	background-color: #221f29
+
+.trend-header__select
+	border: 0
+	border-radius: 0
+	border-bottom: solid 3px white
+	width: 0
+	background-color: transparent
+	font-size: rem(27px)
+	font-weight: bold
+	line-height: 1
+	color: white
+	-webkit-appearance: none
+
+.trend-legends
+	margin-bottom: rem(24px)
+	list-style: none
+	display: flex
+
+.trend-legends__item
+	transition: opacity 0.25s
+	display: flex
+	flex-wrap: nowrap
+	margin-right: rem(24px)
+	cursor: pointer
+	&.-disabled
+		opacity: 0.2
+
+.trend-legends__color
+	display: block
+	width: rem(48px)
+	height: rem(26px)
+	background-color: white
+
+.trend-legends__label
+	display: block
+	margin-left: rem(8px)
+	font-size: rem(21px)
+	line-height: 1
+	padding-top: rem(4px)
+
+.trend-chart
+	rect
+		fill: white
+
+// ----------------------------------------------------------------------------
+// Map Section
+// ----------------------------------------------------------------------------
+
+.map
+	display: flex
+	align-items: center
+	justify-content: center
+	height: rem(300px)
+
+.map__placeholder
+	display: block
+	font-family: 'Menlo', monospace
+	font-size: rem(21px)
+	color: $color-highlight
