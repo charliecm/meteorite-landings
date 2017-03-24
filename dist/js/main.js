@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			toggle = function() {
 				var isEnabled = this._data.isEnabled = !this._data.isEnabled;
 				this.classList.toggle('-disabled', !isEnabled);
-				redraw();
+				updateVis();
 			};
 		// Clear legends items
 		while (eleLegends.firstChild) {
@@ -148,6 +148,35 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
+	 * Setups UI layout and interactivity.
+	 */
+	function setupControls() {
+
+		// Populate dimension select box with items
+		(function() {
+			var option;
+			for (var id in dimensions) {
+				option = document.createElement('option');
+				option.value = id;
+				option.textContent = dimensions[id].name;
+				dimSelect.appendChild(option);
+			}
+		})();
+
+		// Handle select box change event
+		dimSelect.addEventListener('change', function() {
+			resizeSelect(this);
+			updateLegends();
+			updateVis();
+		});
+		resizeSelect(dimSelect);
+
+		updateLegends();
+		setupVis();
+
+	}
+
+	/**
 	 * TODO: Setups structure of trend chart.
 	 */
 	function setupVis() {
@@ -155,10 +184,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
-	 * Draws the visualization.
+	 * Draws the trend chart.
 	 * @param {boolean} isInit If true, skip transitions.
 	 */
-	function redraw(isInit) {
+	function updateVis(isInit) {
 
 		if (!isInitialized) return;
 
@@ -229,40 +258,13 @@ document.addEventListener('DOMContentLoaded', function() {
 					return true;
 				});
 				isInitialized = true;
-				window.addEventListener('resize', debounce(redraw, 500));
-				redraw(true);
+				window.addEventListener('resize', debounce(updateVis, 500));
+				updateVis(true);
 			});
 	}
 
-	/**
-	 * Setups UI layout and interactivity.
-	 */
-	function setupUI() {
-
-		// Setup dimension select box
-		(function populateDimensionSelect() {
-			var option;
-			for (var id in dimensions) {
-				option = document.createElement('option');
-				option.value = id;
-				option.textContent = dimensions[id].name;
-				dimSelect.appendChild(option);
-			}
-		})();
-		dimSelect.addEventListener('change', function() {
-			resizeSelect(this);
-			updateLegends();
-			redraw();
-		});
-		resizeSelect(dimSelect);
-
-		updateLegends();
-		setupVis();
-
-	}
-
 	// Get the ball rolling...
-	setupUI();
+	setupControls();
 	fetch();
 
 });
