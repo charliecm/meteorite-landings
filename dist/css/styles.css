@@ -117,6 +117,8 @@ a {
   line-height: 1;
   color: white;
   -webkit-appearance: none; }
+  .trend-header__select:focus {
+    outline: 0; }
 
 .trend-legends {
   margin-bottom: 1.5rem;
@@ -128,7 +130,8 @@ a {
   display: flex;
   flex-wrap: nowrap;
   margin-right: 1.5rem;
-  cursor: pointer; }
+  cursor: pointer;
+  user-select: none; }
   .trend-legends__item.-disabled {
     opacity: 0.2; }
 
