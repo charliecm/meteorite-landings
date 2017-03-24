@@ -145,8 +145,10 @@ a {
   line-height: 1;
   padding-top: 0.25rem; }
 
-.trend-chart rect {
-  fill: white; }
+.trend-chart {
+  height: 20rem; }
+  .trend-chart rect {
+    fill: white; }
 
 .map {
   display: flex;

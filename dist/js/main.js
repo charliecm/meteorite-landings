@@ -9,11 +9,44 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Data
 	var data,
 		dataURL = 'data.csv',
+		dimensions = {
+			mass: {
+				name: 'Mass',
+				bins: [
+					{
+						color: 'red',
+						name: '0-200',
+						isEnabled: true
+					},
+					{
+						color: 'blue',
+						name: '201-400',
+						isEnabled: true
+					}
+				]
+			},
+			discovery: {
+				name: 'Discovery Type',
+				bins: [
+					{
+						color: 'red',
+						name: 'Found',
+						isEnabled: true
+					},
+					{
+						color: 'blue',
+						name: 'Observed',
+						isEnabled: true
+					}
+				]
+			}
+		},
 		yMax = 0;
 
 	// UI
-	var canvas = document.getElementById('trend-chart'),
-		svg = d3.select(canvas).append('svg'),
+	var eleLegends = document.getElementById('trend-legends'),
+		eleChart = document.getElementById('trend-chart'),
+		svg = d3.select(eleChart).append('svg'),
 		gBars,
 		dimSelect = document.getElementById('trend-dimension'),
 		isInitialized = false;
@@ -50,7 +83,20 @@ document.addEventListener('DOMContentLoaded', function() {
 		};
 	}
 
-	// Resize select box to selected option size
+	/**
+	 * Remove all children from a node.
+	 * @param {Node} node Element node.
+	 */
+	function emptyNode(node) {
+		while (node.firstChild) {
+			node.removeChild(node.firstChild);
+		}
+	}
+
+	/**
+	 * Resizes a select box to selected option size.
+	 * @param {HTMLSelectElement} ele Select box element.
+	 */
 	function resizeSelect(ele) {
 		var select = document.createElement('select'),
 			option = document.createElement('option');
@@ -63,22 +109,61 @@ document.addEventListener('DOMContentLoaded', function() {
 		select.parentNode.removeChild(select);
 	}
 
-	// TODO: Setup visualization canvas
+	/**
+	 * Updates the legends list.
+	 */
+	function updateLegends() {
+		var dimension = dimSelect.options[dimSelect.selectedIndex].value,
+			bins = dimensions[dimension].bins,
+			data, item, itemColor, itemLabel,
+			toggle = function() {
+				var isEnabled = this._data.isEnabled = !this._data.isEnabled;
+				this.classList.toggle('-disabled', !isEnabled);
+				redraw();
+			};
+		// Clear legends items
+		while (eleLegends.firstChild) {
+			eleLegends.firstChild.removeEventListener('click', toggle);
+			eleLegends.removeChild(eleLegends.firstChild);
+		}
+		// Add new legends items
+		for (var i in bins) {
+			item = document.createElement('li');
+			data = item._data = bins[i];
+			item.className = 'trend-legends__item ' + (data.isEnabled ? '' : '-disabled');
+			item.addEventListener('click', toggle);
+			// Color
+			itemColor = document.createElement('span');
+			itemColor.className = 'trend-legends__color';
+			itemColor.style.backgroundColor = data.color;
+			// Label
+			itemLabel = document.createElement('span');
+			itemLabel.className = 'trend-legends__label';
+			itemLabel.textContent = data.name;
+			// Append
+			item.appendChild(itemColor);
+			item.appendChild(itemLabel);
+			eleLegends.appendChild(item);
+		}
+	}
+
+	/**
+	 * TODO: Setups structure of trend chart.
+	 */
 	function setupVis() {
 		gBars = svg.append('g');
 	}
 
-	function updateLegends() {
-
-	}
-
-	// Draws the visualization
+	/**
+	 * Draws the visualization.
+	 * @param {boolean} isInit If true, skip transitions.
+	 */
 	function redraw(isInit) {
 
 		if (!isInitialized) return;
 
-		var outerWidth = canvas.clientWidth,
-			outerHeight = 400, //canvas.clientHeight,
+		var outerWidth = eleChart.clientWidth,
+			outerHeight = eleChart.clientHeight,
 			xScale = d3.scaleBand()
 				.rangeRound([ 0, outerWidth ])
 				// .padding(0.05)
@@ -117,7 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 
-	// Fetches and parses the data
+	/**
+	 * Fetches and parses the data.
+	 */
 	function fetch() {
 		d3.csv(dataURL)
 			.row(function(d) {
@@ -135,27 +222,47 @@ document.addEventListener('DOMContentLoaded', function() {
 			})
 			.get(function(d) {
 				data = d.filter(function(d) {
-					if (d.year > 2015) {
+					// TODO: Change threshold to 2015
+					if (d.year > 1000) {
 						return false;
 					}
 					return true;
 				});
-				setupVis();
-				return;
-				redraw(true);
-				window.addEventListener('resize', debounce(redraw, 500));
 				isInitialized = true;
+				window.addEventListener('resize', debounce(redraw, 500));
+				redraw(true);
 			});
 	}
 
-	// Setup dimension select box
-	dimSelect.addEventListener('change', function() {
-		resizeSelect(this);
-		redraw();
-	});
-	resizeSelect(dimSelect);
+	/**
+	 * Setups UI layout and interactivity.
+	 */
+	function setupUI() {
+
+		// Setup dimension select box
+		(function populateDimensionSelect() {
+			var option;
+			for (var id in dimensions) {
+				option = document.createElement('option');
+				option.value = id;
+				option.textContent = dimensions[id].name;
+				dimSelect.appendChild(option);
+			}
+		})();
+		dimSelect.addEventListener('change', function() {
+			resizeSelect(this);
+			updateLegends();
+			redraw();
+		});
+		resizeSelect(dimSelect);
+
+		updateLegends();
+		setupVis();
+
+	}
 
 	// Get the ball rolling...
+	setupUI();
 	fetch();
 
 });
