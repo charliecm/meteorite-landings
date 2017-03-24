@@ -2,54 +2,27 @@
  * Main Interactions
  */
 
-/* global d3 */
+/* global d3, TrendChart, MassChart */
 
 document.addEventListener('DOMContentLoaded', function() {
 
 	// Data
-	var data,
-		dataURL = 'data.csv',
-		dimensions = {
-			mass: {
-				name: 'Mass',
-				bins: [
-					{
-						color: 'red',
-						name: '0-200',
-						isEnabled: true
-					},
-					{
-						color: 'blue',
-						name: '201-400',
-						isEnabled: true
-					}
-				]
+	var dataURL = 'data.csv',
+		trendBins = [
+			{
+				name: 'Found',
+				color: 'red',
+				isEnabled: true
 			},
-			discovery: {
-				name: 'Discovery Type',
-				bins: [
-					{
-						color: 'red',
-						name: 'Found',
-						isEnabled: true
-					},
-					{
-						color: 'blue',
-						name: 'Observed',
-						isEnabled: true
-					}
-				]
+			{
+				name: 'Observed',
+				color: 'blue',
+				isEnabled: true
 			}
-		},
-		yMax = 0;
-
-	// UI
-	var eleLegends = document.getElementById('trend-legends'),
-		eleChart = document.getElementById('trend-chart'),
-		svg = d3.select(eleChart).append('svg'),
-		gBars,
-		dimSelect = document.getElementById('trend-dimension'),
-		isInitialized = false;
+		],
+		trendChart, massChart,
+		trendLegends = document.getElementById('trend-legends'),
+		isDataReady = false;
 
 	// https://github.com/jashkenas/underscore/blob/master/underscore.js#L880
 	function debounce(func, wait, immediate) {
@@ -84,48 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
-	 * Remove all children from a node.
-	 * @param {Node} node Element node.
-	 */
-	function emptyNode(node) {
-		while (node.firstChild) {
-			node.removeChild(node.firstChild);
-		}
-	}
-
-	/**
-	 * Resizes a select box to selected option size.
-	 * @param {HTMLSelectElement} ele Select box element.
-	 */
-	function resizeSelect(ele) {
-		var select = document.createElement('select'),
-			option = document.createElement('option');
-		select.className = ele.className;
-		select.style.width = 'auto';
-		option.textContent = ele.options[ele.selectedIndex].text;
-		select.appendChild(option);
-		document.body.appendChild(select);
-		ele.style.width = select.clientWidth + 'px';
-		select.parentNode.removeChild(select);
-	}
-
-	/**
 	 * Updates the legends list.
 	 */
 	function updateLegends() {
-		var dimension = dimSelect.options[dimSelect.selectedIndex].value,
-			bins = dimensions[dimension].bins,
+		var bins = trendBins,
 			data, item, itemColor, itemLabel,
 			toggle = function() {
 				var isEnabled = this._data.isEnabled = !this._data.isEnabled;
 				this.classList.toggle('-disabled', !isEnabled);
 				updateVis();
 			};
-		// Clear legends items
-		while (eleLegends.firstChild) {
-			eleLegends.firstChild.removeEventListener('click', toggle);
-			eleLegends.removeChild(eleLegends.firstChild);
-		}
 		// Add new legends items
 		for (var i in bins) {
 			item = document.createElement('li');
@@ -143,92 +84,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Append
 			item.appendChild(itemColor);
 			item.appendChild(itemLabel);
-			eleLegends.appendChild(item);
+			trendLegends.appendChild(item);
 		}
 	}
 
 	/**
-	 * Setups UI layout and interactivity.
-	 */
-	function setupControls() {
-
-		// Populate dimension select box with items
-		(function() {
-			var option;
-			for (var id in dimensions) {
-				option = document.createElement('option');
-				option.value = id;
-				option.textContent = dimensions[id].name;
-				dimSelect.appendChild(option);
-			}
-		})();
-
-		// Handle select box change event
-		dimSelect.addEventListener('change', function() {
-			resizeSelect(this);
-			updateLegends();
-			updateVis();
-		});
-		resizeSelect(dimSelect);
-
-		updateLegends();
-		setupVis();
-
-	}
-
-	/**
-	 * TODO: Setups structure of trend chart.
-	 */
-	function setupVis() {
-		gBars = svg.append('g');
-	}
-
-	/**
-	 * Draws the trend chart.
+	 * Updates visualizations.
 	 * @param {boolean} isInit If true, skip transitions.
 	 */
 	function updateVis(isInit) {
-
-		if (!isInitialized) return;
-
-		var outerWidth = eleChart.clientWidth,
-			outerHeight = eleChart.clientHeight,
-			xScale = d3.scaleBand()
-				.rangeRound([ 0, outerWidth ])
-				// .padding(0.05)
-				.domain(data.map(function(d) {
-					return d.year;
-				})),
-			yScale = d3.scaleLinear()
-				.range([ 0, outerHeight ])
-				.domain([ 0, yMax ]);
-
-		// Resize canvas
-		svg.attrs({
-			class: 'chart',
-			width: outerWidth,
-			height: outerHeight
-		});
-
-		gBars.selectAll('rect')
-			.data(data)
-			.enter()
-				.append('rect')
-				.attrs({
-					width: function(d) {
-						return xScale.bandwidth();
-					},
-					height: function(d) {
-						return yScale(d.mass);
-					},
-					x: function(d, i) {
-						return xScale(d.year);
-					},
-					y: function(d) {
-						return outerHeight - yScale(d.mass);
-					}
-				});
-
+		if (!isDataReady) return;
+		trendChart.update(isInit);
+		massChart.update(isInit);
 	}
 
 	/**
@@ -237,34 +104,25 @@ document.addEventListener('DOMContentLoaded', function() {
 	function fetch() {
 		d3.csv(dataURL)
 			.row(function(d) {
-				var mass = +d['mass'];
-				if (mass > yMax) {
-					yMax = mass;
-				}
 				return {
-					mass: mass,
-					discovery: d['fall'],
 					year: +d['year'],
-					long: +d['reclong'],
-					lat: +d['reclat']
+					mass: +d['mass'],
+					discovery: d['discovery'],
+					lat: +d['lat'],
+					lng: +d['lng']
 				};
 			})
 			.get(function(d) {
-				data = d.filter(function(d) {
-					// TODO: Change threshold to 2015
-					if (d.year > 1000) {
-						return false;
-					}
-					return true;
-				});
-				isInitialized = true;
+				trendChart = new TrendChart(document.getElementById('trend-chart'), d, trendBins);
+				massChart = new MassChart(document.getElementById('mass-chart'), d);
+				isDataReady = true;
 				window.addEventListener('resize', debounce(updateVis, 500));
 				updateVis(true);
 			});
 	}
 
 	// Get the ball rolling...
-	setupControls();
+	updateLegends();
 	fetch();
 
 });

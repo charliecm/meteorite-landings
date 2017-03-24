@@ -14,10 +14,9 @@
 		</p>
 	</header>
 	<main class="main">
-		<div class="trend-header wrap">
-			<h2 class="trend-header__title">
-				Meteorites by
-				<select id="trend-dimension" class="trend-header__select"></select>
+		<div class="chart-header wrap">
+			<h2 class="chart-header__title">
+				Meteorites by Time
 			</h2>
 			<ul id="trend-legends" class="trend-legends">
 				<!-- <li class="trend-legends__item">
@@ -27,7 +26,19 @@
 			</ul>
 		</div>
 		<div class="trend-body">
-			<div id="trend-chart" class="trend-chart wrap"></div>
+			<div class="wrap">
+				<div id="trend-chart" class="trend-chart"></div>
+			</div>
+		</div>
+		<div class="chart-header wrap">
+			<h2 class="chart-header__title">
+				Meteorites by Mass
+			</h2>
+		</div>
+		<div class="mass-body">
+			<div class="wrap">
+				<div id="mass-chart" class="mass-chart"></div>
+			</div>
 		</div>
 		<div id="map" class="map">
 			<span class="map__placeholder">&lt;map&gt;</span>
@@ -43,6 +54,8 @@
 	<script src="js/d3-shape.v1.min.js"></script>
 	<script src="js/d3-scale.v1.min.js"></script>
 	<script src="js/d3-axis.v1.min.js"></script>
+	<script src="js/TrendChart.js"></script>
+	<script src="js/MassChart.js"></script>
 	<script src="js/main.js"></script>
 	<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </body>

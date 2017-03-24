@@ -51,30 +51,23 @@ a
 	color: $color-highlight
 
 // ----------------------------------------------------------------------------
-// Trend Section
+// Chart Header
 // ----------------------------------------------------------------------------
 
-.trend-header__title
+.chart-header__title
 	font-size: rem(27px)
 	font-weight: bold
 	margin-bottom: rem(12px)
 
+.chart-header
+	padding-bottom: rem(24px)
+
+// ----------------------------------------------------------------------------
+// Trend Section
+// ----------------------------------------------------------------------------
+
 .trend-body
 	background-color: #221f29
-
-.trend-header__select
-	border: 0
-	border-radius: 0
-	border-bottom: solid 3px white
-	width: 0
-	background-color: transparent
-	font-size: rem(27px)
-	font-weight: bold
-	line-height: 1
-	color: white
-	-webkit-appearance: none
-	&:focus
-		outline: 0
 
 .trend-legends
 	margin-bottom: rem(24px)
@@ -105,9 +98,22 @@ a
 	padding-top: rem(4px)
 
 .trend-chart
-	height: rem(320px)
+	height: rem(360px)
 	rect
 		fill: white
+	text
+		fill: white
+	path
+		stroke: white
+
+.mass-chart
+	height: rem(360px)
+	rect
+		fill: white
+	text
+		fill: white
+	path
+		stroke: white
 
 // ----------------------------------------------------------------------------
 // Map Section
