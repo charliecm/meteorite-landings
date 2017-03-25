@@ -11,15 +11,14 @@ document.addEventListener('DOMContentLoaded', function() {
 		trendBins = [
 			{
 				name: 'observed',
-				color: '#F2DD1D',
-				isEnabled: true
+				color: '#F2DD1D'
 			},
 			{
 				name: 'found',
-				color: '#59AFFF',
-				isEnabled: true
+				color: '#59AFFF'
 			}
 		],
+		trendBinActive = '',
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
 		isDataReady = false;
@@ -61,26 +60,41 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	function updateLegends() {
 		var bins = trendBins,
-			data, item, itemColor, itemLabel,
+			bin,
+			items = [],
+			item, itemColor, itemLabel,
+			update = function() {
+				for (var i in items) {
+					items[i].classList.toggle('-disabled', !(items[i]._name === trendBinActive || trendBinActive === ''));
+				}
+			},
 			toggle = function() {
-				var isEnabled = this._data.isEnabled = !this._data.isEnabled;
-				this.classList.toggle('-disabled', !isEnabled);
+				var name = this._name;
+				if (trendBinActive === name) {
+					trendBinActive = '';
+				} else {
+					trendBinActive = name;
+				}
+				trendChart.updateData(trendBinActive);
 				updateVis();
+				update();
 			};
 		// Add new legends items
 		for (var i in bins) {
+			bin = bins[i];
 			item = document.createElement('li');
-			data = item._data = bins[i];
-			item.className = 'trend-legends__item ' + (data.isEnabled ? '' : '-disabled');
+			item._name = bins[i].name;
+			item.className = 'trend-legends__item ';
 			item.addEventListener('click', toggle);
+			items.push(item);
 			// Color
 			itemColor = document.createElement('span');
 			itemColor.className = 'trend-legends__color';
-			itemColor.style.backgroundColor = data.color;
+			itemColor.style.backgroundColor = bin.color;
 			// Label
 			itemLabel = document.createElement('span');
 			itemLabel.className = 'trend-legends__label';
-			itemLabel.textContent = data.name;
+			itemLabel.textContent = bin.name;
 			// Append
 			item.appendChild(itemColor);
 			item.appendChild(itemLabel);
