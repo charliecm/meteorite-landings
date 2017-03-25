@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	var dataURL = 'data.csv',
 		trendBins = [
 			{
-				name: 'Found',
-				color: 'red',
+				name: 'observed',
+				color: '#F2DD1D',
 				isEnabled: true
 			},
 			{
-				name: 'Observed',
-				color: 'blue',
+				name: 'found',
+				color: '#59AFFF',
 				isEnabled: true
 			}
 		],

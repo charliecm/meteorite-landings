@@ -110,7 +110,6 @@ a {
   background-color: #221f29; }
 
 .trend-legends {
-  margin-bottom: 1.5rem;
   list-style: none;
   display: flex; }
 
@@ -138,13 +137,11 @@ a {
   padding-top: 0.25rem; }
 
 .trend-chart {
-  height: 22.5rem; }
-  .trend-chart rect {
-    fill: white; }
-  .trend-chart text {
-    fill: white; }
-  .trend-chart path {
-    stroke: white; }
+  height: 25rem; }
+  .trend-chart .x-axis text, .trend-chart .y-axis text {
+    fill: #5B537A; }
+  .trend-chart .x-axis line, .trend-chart .x-axis path, .trend-chart .y-axis line, .trend-chart .y-axis path {
+    stroke: #5B537A; }
 
 .mass-chart {
   height: 22.5rem; }

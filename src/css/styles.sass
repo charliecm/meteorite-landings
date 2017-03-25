@@ -70,7 +70,6 @@ a
 	background-color: #221f29
 
 .trend-legends
-	margin-bottom: rem(24px)
 	list-style: none
 	display: flex
 
@@ -98,13 +97,12 @@ a
 	padding-top: rem(4px)
 
 .trend-chart
-	height: rem(360px)
-	rect
-		fill: white
-	text
-		fill: white
-	path
-		stroke: white
+	height: rem(400px)
+	.x-axis, .y-axis
+		text
+			fill: #5B537A
+		line, path
+			stroke: #5B537A
 
 .mass-chart
 	height: rem(360px)
