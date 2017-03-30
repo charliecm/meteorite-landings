@@ -40,7 +40,7 @@ a
 	font-weight: bold
 
 .header__description
-	margin-bottom: rem(48px)
+	margin-bottom: rem(16px)
 	font-size: rem(21px)
 	line-height: rem(27px)
 
@@ -55,29 +55,30 @@ a
 // ----------------------------------------------------------------------------
 
 .chart-header__title
-	font-size: rem(27px)
+	font-size: rem(21px)
 	font-weight: bold
 	margin-bottom: rem(12px)
 
 .chart-header
-	padding-bottom: rem(24px)
+	padding-top: rem(24px)
 
 // ----------------------------------------------------------------------------
 // Trend Section
 // ----------------------------------------------------------------------------
 
 .trend-body
-	background-color: #221f29
+	background-color: $color-bg-alt
 
 .trend-legends
 	list-style: none
 	display: flex
+	margin-bottom: rem(16px)
 
 .trend-legends__item
 	transition: opacity 0.25s
 	display: flex
 	flex-wrap: nowrap
-	margin-right: rem(24px)
+	margin-right: rem(21px)
 	cursor: pointer
 	user-select: none
 	&.-disabled
@@ -85,33 +86,44 @@ a
 
 .trend-legends__color
 	display: block
-	width: rem(48px)
-	height: rem(26px)
+	width: rem(37px)
+	height: rem(18px)
 	background-color: white
 
 .trend-legends__label
 	display: block
 	margin-left: rem(8px)
-	font-size: rem(21px)
 	line-height: 1
-	padding-top: rem(4px)
+	padding-top: rem(2px)
 
 .trend-chart
 	height: rem(400px)
+	text
+		font-family: $font-primary
+		font-size: rem(10px)
 	.x-axis, .y-axis
 		text
-			fill: #5B537A
+			fill: $color-ticks
 		line, path
-			stroke: #5B537A
+			stroke: $color-ticks
+	.x-axis text
+		font-size: rem(12px)
 
 .mass-chart
-	height: rem(360px)
+	height: rem(300px)
+	text
+		font-family: $font-primary
+		font-size: rem(10px)
 	rect
 		fill: white
-	text
-		fill: white
-	path
-		stroke: white
+	.x-axis, .y-axis
+		text
+			fill: $color-ticks
+		line, path
+			stroke: $color-ticks
+	.x-axis .label
+		font-size: rem(12px)
+		font-weight: bold
 
 // ----------------------------------------------------------------------------
 // Map Section

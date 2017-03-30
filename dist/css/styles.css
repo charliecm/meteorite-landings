@@ -69,7 +69,7 @@ body {
   font-size: 1rem;
   line-height: 1;
   color: white;
-  background-color: #1b1a1f; }
+  background-color: #1b1b1b; }
 
 a {
   color: inherit; }
@@ -88,7 +88,7 @@ a {
   font-weight: bold; }
 
 .header__description {
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   font-size: 1.3125rem;
   line-height: 1.6875rem; }
 
@@ -96,28 +96,29 @@ a {
   margin-top: 3rem;
   margin-bottom: 4.5rem;
   text-align: center;
-  color: #796FA3; }
+  color: #ccc; }
 
 .chart-header__title {
-  font-size: 1.6875rem;
+  font-size: 1.3125rem;
   font-weight: bold;
   margin-bottom: 0.75rem; }
 
 .chart-header {
-  padding-bottom: 1.5rem; }
+  padding-top: 1.5rem; }
 
 .trend-body {
-  background-color: #221f29; }
+  background-color: #222; }
 
 .trend-legends {
   list-style: none;
-  display: flex; }
+  display: flex;
+  margin-bottom: 1rem; }
 
 .trend-legends__item {
   transition: opacity 0.25s;
   display: flex;
   flex-wrap: nowrap;
-  margin-right: 1.5rem;
+  margin-right: 1.3125rem;
   cursor: pointer;
   user-select: none; }
   .trend-legends__item.-disabled {
@@ -125,32 +126,42 @@ a {
 
 .trend-legends__color {
   display: block;
-  width: 3rem;
-  height: 1.625rem;
+  width: 2.3125rem;
+  height: 1.125rem;
   background-color: white; }
 
 .trend-legends__label {
   display: block;
   margin-left: 0.5rem;
-  font-size: 1.3125rem;
   line-height: 1;
-  padding-top: 0.25rem; }
+  padding-top: 0.125rem; }
 
 .trend-chart {
   height: 25rem; }
+  .trend-chart text {
+    font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
+    font-size: 0.625rem; }
   .trend-chart .x-axis text, .trend-chart .y-axis text {
-    fill: #5B537A; }
+    fill: #666; }
   .trend-chart .x-axis line, .trend-chart .x-axis path, .trend-chart .y-axis line, .trend-chart .y-axis path {
-    stroke: #5B537A; }
+    stroke: #666; }
+  .trend-chart .x-axis text {
+    font-size: 0.75rem; }
 
 .mass-chart {
-  height: 22.5rem; }
+  height: 18.75rem; }
+  .mass-chart text {
+    font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
+    font-size: 0.625rem; }
   .mass-chart rect {
     fill: white; }
-  .mass-chart text {
-    fill: white; }
-  .mass-chart path {
-    stroke: white; }
+  .mass-chart .x-axis text, .mass-chart .y-axis text {
+    fill: #666; }
+  .mass-chart .x-axis line, .mass-chart .x-axis path, .mass-chart .y-axis line, .mass-chart .y-axis path {
+    stroke: #666; }
+  .mass-chart .x-axis .label {
+    font-size: 0.75rem;
+    font-weight: bold; }
 
 .map {
   display: flex;
@@ -162,4 +173,4 @@ a {
   display: block;
   font-family: 'Menlo', monospace;
   font-size: 1.3125rem;
-  color: #796FA3; }
+  color: #ccc; }

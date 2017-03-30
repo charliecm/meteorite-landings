@@ -8,7 +8,7 @@
 
 (function() {
 
-	var margin = {
+	var MARGIN = {
 		top: 24,
 		left: 32,
 		right: 0,
@@ -40,9 +40,11 @@
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
 		this.gWrap = this.svg.append('g');
-		this.gWrap.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+		this.gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
 		this.gXAxis = this.gWrap.append('g').attr('class', 'x-axis');
-		this.gXAxis.append('line');
+		this.gXAxis.append('text')
+			.style('text-anchor', 'middle')
+			.text('Year');
 		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = this.gWrap.append('g').attr('class', 'bars');
 		// Add bin colors
@@ -83,8 +85,8 @@
 			colors = this.colors,
 			outerWidth = ele.clientWidth,
 			outerHeight = ele.clientHeight,
-			width  = outerWidth - margin.left - margin.right,
-			height = outerHeight - margin.top - margin.bottom,
+			width  = outerWidth - MARGIN.left - MARGIN.right,
+			height = outerHeight - MARGIN.top - MARGIN.bottom,
 			xScale = d3.scaleBand()
 				.range([ 0, width ])
 				.domain(data.map(function(d) {
@@ -99,13 +101,15 @@
 			yAxis = d3.axisLeft().scale(yScale);
 
 		// Resize canvas
-		this.svg.attrs({
-			width: outerWidth,
-			height: outerHeight
-		});
+		this.svg
+			.attr('width', outerWidth)
+			.attr('height', outerHeight);
 
 		// x-axis
-		// this.gXAxis
+		this.gXAxis
+			.attr('transform', 'translate(0,' + height + ')')
+			.select('text')
+				.attr('transform', 'translate(' + (width / 2) + ',' + (height + 16) + ')');
 		// 	.call(xAxis.ticks(d3.timeYear.every(100)))
 		// 	.attr('transform', 'translate(0,' + height + ')');
 
@@ -117,11 +121,11 @@
 		gSeries.exit().remove();
 		gSeries = gSeries.enter()
 			.append('g')
-			.attr('class', 'series')
+				.attr('class', 'series')
 			.merge(gSeries)
-			.attr('fill', function(d) {
-				return colors[d.key];
-			});
+				.attr('fill', function(d) {
+					return colors[d.key];
+				});
 
 		// Series bars
 		var gSeriesBars = gSeries.selectAll('g')
@@ -136,17 +140,15 @@
 				// Create bars
 				d3.select(this).select('rect').remove();
 				d3.select(this).append('rect').datum(d)
-					.attrs({
-						x: function(d) {
-							return xScale(d.data.year);
-						},
-						width: xScale.bandwidth(),
-						height: function(d) {
-							return yScale(d[0]) - yScale(d[1]);
-						}
+					.attr('x', function(d) {
+						return xScale(d.data.year);
 					})
 					.attr('y', function(d) {
 						return yScale(d[1]);
+					})
+					.attr('width', xScale.bandwidth())
+					.attr('height', function(d) {
+						return yScale(d[0]) - yScale(d[1]);
 					});
 			});
 
