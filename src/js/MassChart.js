@@ -35,7 +35,7 @@
 		this.gXAxis.append('text')
 			.attr('class', 'label')
 			.style('text-anchor', 'middle')
-			.text('Mass (kg)');
+			.text('Mass (g)');
 		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = this.gWrap.append('g').attr('class', 'bars');
 	}
