@@ -12,7 +12,7 @@
 		top: 24,
 		left: 32,
 		right: 0,
-		bottom: 56
+		bottom: 64
 	};
 
 	/**
@@ -26,14 +26,15 @@
 		this.ele = ele;
 		// Parse data
 		data.forEach(function(d) {
-			if (!counts.hasOwnProperty(d.year)) {
-				counts[d.year] = {
-					year: d.year,
+			var decade = (Math.floor(+d.year / 10) * 10) + 's';
+			if (!counts.hasOwnProperty(decade)) {
+				counts[decade] = {
+					year: decade,
 					observed: 0,
 					found: 0
 				};
 			}
-			counts[d.year][d.discovery]++;
+			counts[decade][d.discovery]++;
 		});
 		this.data = Object.values(counts);
 		this.updateData();
@@ -43,8 +44,9 @@
 		this.gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
 		this.gXAxis = this.gWrap.append('g').attr('class', 'x-axis');
 		this.gXAxis.append('text')
+			.attr('class', 'label')
 			.style('text-anchor', 'middle')
-			.text('Year');
+			.text('Year (by decades)');
 		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = this.gWrap.append('g').attr('class', 'bars');
 		// Add bin colors
@@ -56,12 +58,12 @@
 
 	/**
 	 * Updates and filters the data.
-	 * @param {String} activeSeries Name of series to filter.
+	 * @param {String} discovery Name of discovery type to filter.
 	 */
-	TrendChart.prototype.updateData = function(activeSeries) {
+	TrendChart.prototype.updateData = function(discovery) {
 		var data = this.data,
-			showObserved = (!activeSeries || activeSeries === 'observed'),
-			showFound = (!activeSeries || activeSeries === 'found'),
+			showObserved = (!discovery || discovery === 'observed'),
+			showFound = (!discovery || discovery === 'found'),
 			keys = [];
 		if (showObserved) keys.push('observed');
 		if (showFound) keys.push('found');
@@ -97,8 +99,10 @@
 				.range([ height, 0 ])
 				.domain([ 0, yMax ])
 				.nice(),
-			// xAxis = d3.axisBottom().scale(xScale),
-			yAxis = d3.axisLeft().scale(yScale);
+			xAxis = d3.axisBottom().scale(xScale),
+			yAxis = d3.axisLeft().scale(yScale),
+			gXAxis = this.gXAxis,
+			alt = false;
 
 		// Resize canvas
 		this.svg
@@ -106,12 +110,21 @@
 			.attr('height', outerHeight);
 
 		// x-axis
-		this.gXAxis
+		gXAxis
+			.call(xAxis.ticks())
 			.attr('transform', 'translate(0,' + height + ')')
-			.select('text')
-				.attr('transform', 'translate(' + (width / 2) + ',' + (height + 16) + ')');
-		// 	.call(xAxis.ticks(d3.timeYear.every(100)))
-		// 	.attr('transform', 'translate(0,' + height + ')');
+			.select('.label')
+				.attr('transform', 'translate(' + (width / 2) + ',' + 44 + ')');
+
+		// Alternate x-axis ticks
+		gXAxis.selectAll('.tick text')
+			.attr('y', function() {
+				return (alt = !alt) ? 20 : 8;
+			});
+		gXAxis.selectAll('.tick line')
+			.attr('y2', function() {
+				return (alt = !alt) ? 16: 4;
+			});
 
 		// y-axis
 		this.gYAxis.call(yAxis.ticks(10, 's'));

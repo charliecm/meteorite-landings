@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					trendBinActive = name;
 				}
 				trendChart.updateData(trendBinActive);
+				massChart.updateData(trendBinActive);
 				updateVis();
 				update();
 			};

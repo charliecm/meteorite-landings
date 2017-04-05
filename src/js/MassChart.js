@@ -42,13 +42,24 @@
 
 	/**
 	 * Updates and filters the data.
+	 * @param {String} discovery Name of disocvery type to filter.
 	 */
-	MassChart.prototype.updateData = function() {
+	MassChart.prototype.updateData = function(discovery) {
 		// TODO: Filter by discovery type and time
 		var scale = d3.scaleLog()
-			.domain([ BIN_MIN, BIN_MAX ]),
+				.domain([ BIN_MIN, BIN_MAX ]),
+			showObserved = (!discovery || discovery === 'observed'),
+			showFound = (!discovery || discovery === 'found'),
 			histogram = null;
-		this.data = this.originalData;
+		this.data = this.originalData.filter(function(d) {
+			if (showObserved && d.discovery == 'observed') {
+				return true;
+			}
+			if (showFound && d.discovery == 'found') {
+				return true;
+			}
+			return false;
+		});
 		histogram = d3.histogram()
 			.value(function(d) {
 				return d.mass;
@@ -102,16 +113,16 @@
 			.call(xAxis.ticks())
 			.attr('transform', 'translate(0,' + height + ')')
 			.select('.label')
-				.attr('transform', 'translate(' + (width / 2) + ',' + 40 + ')');
+				.attr('transform', 'translate(' + (width / 2) + ',' + 44 + ')');
 
 		// Alternate x-axis ticks
 		gXAxis.selectAll('.tick text')
 			.attr('y', function() {
-				return (alt = !alt) ? 18 : 8;
+				return (alt = !alt) ? 20 : 8;
 			});
 		gXAxis.selectAll('.tick line')
 			.attr('y2', function() {
-				return (alt = !alt) ? 14: 4;
+				return (alt = !alt) ? 16: 4;
 			});
 
 		// y-axis

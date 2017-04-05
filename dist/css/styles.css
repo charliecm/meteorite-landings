@@ -145,8 +145,9 @@ a {
     fill: #666; }
   .trend-chart .x-axis line, .trend-chart .x-axis path, .trend-chart .y-axis line, .trend-chart .y-axis path {
     stroke: #666; }
-  .trend-chart .x-axis text {
-    font-size: 0.75rem; }
+  .trend-chart .x-axis .label {
+    font-size: 0.75rem;
+    font-weight: bold; }
 
 .mass-chart {
   height: 18.75rem; }
