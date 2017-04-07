@@ -11,14 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
 		trendBins = [
 			{
 				name: 'observed',
+				label: 'Observed',
 				color: '#F2DD1D'
 			},
 			{
 				name: 'found',
+				label: 'Found',
 				color: '#59AFFF'
 			}
 		],
-		trendBinActive = '',
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
 		isDataReady = false;
@@ -62,31 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		var bins = trendBins,
 			bin,
 			items = [],
-			item, itemColor, itemLabel,
-			update = function() {
-				for (var i in items) {
-					items[i].classList.toggle('-disabled', !(items[i]._name === trendBinActive || trendBinActive === ''));
-				}
-			},
-			toggle = function() {
-				var name = this._name;
-				if (trendBinActive === name) {
-					trendBinActive = '';
-				} else {
-					trendBinActive = name;
-				}
-				trendChart.updateData(trendBinActive);
-				massChart.updateData(trendBinActive);
-				updateVis();
-				update();
-			};
+			item, itemColor, itemLabel;
 		// Add new legends items
 		for (var i in bins) {
 			bin = bins[i];
 			item = document.createElement('li');
-			item._name = bins[i].name;
 			item.className = 'trend-legends__item ';
-			item.addEventListener('click', toggle);
 			items.push(item);
 			// Color
 			itemColor = document.createElement('span');
@@ -95,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Label
 			itemLabel = document.createElement('span');
 			itemLabel.className = 'trend-legends__label';
-			itemLabel.textContent = bin.name;
+			itemLabel.textContent = bin.label;
 			// Append
 			item.appendChild(itemColor);
 			item.appendChild(itemLabel);
@@ -119,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * @param {number} end End year.
 	 */
 	function onYearChange(start, end) {
-		massChart.updateData(false, start, end);
+		massChart.updateData(start, end);
 		massChart.update();
 	}
 

@@ -40,13 +40,16 @@
 			}
 			counts[decade][d.discovery]++;
 		});
+		this.data = Object.values(counts);
 		var keys = Object.keys(counts);
 		this.xMin = keys[0];
 		this.xMax = keys[keys.length - 1];
-		this.data = Object.values(counts);
-		this.y0Max = 0;
-		this.y1Max = 0;
-		this.updateData();
+		this.y0Max = d3.max(this.data, function(d) {
+			return d.observed;
+		});
+		this.y1Max = d3.max(this.data, function(d) {
+			return d.found;
+		});
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
 		this.gWrap = this.svg.append('g');
@@ -90,6 +93,7 @@
 			highlight
 				.attr('x', getKnobX(knobA))
 				.attr('width', getKnobX(knobB) - getKnobX(knobA));
+			event.preventDefault();
 		}.bind(this));
 		// Drag release - snap to nearest year band
 		document.addEventListener('mouseup', function() {
@@ -157,26 +161,6 @@
 	};
 
 	/**
-	 * Updates and filters the data.
-	 * @param {String} discovery Name of discovery type to filter.
-	 */
-	TrendChart.prototype.updateData = function(discovery) {
-		var data = this.data,
-			showObserved = (!discovery || discovery === 'observed'),
-			showFound = (!discovery || discovery === 'found'),
-			keys = [];
-		if (showObserved) keys.push('observed');
-		if (showFound) keys.push('found');
-		this.series = d3.stack().keys(keys)(data);
-		this.y0Max = d3.max(data, function(d) {
-			return d.observed;
-		});
-		this.y1Max = d3.max(data, function(d) {
-			return d.found;
-		});
-	};
-
-	/**
 	 * Updates the chart.
 	 * @param {boolean} isInit If true, skip transitions.
 	 */
@@ -209,27 +193,10 @@
 			gXAxis = this.gXAxis,
 			alt = false;
 
-		// Update quantize scale for knob positioning
-		this.qScale = d3.scaleQuantize()
-			.domain([ 0, width ])
-			.range(data.map(function(d) {
-				return d.year;
-			}));
-
-		// Update knobs and highlight
-		if (isInit) {
-			this.updateYearRange(this.xMin, this.xMax);
-		} else {
-			this.updateYearRange();
-		}
-
 		// Resize canvas
 		this.svg
 			.attr('width', outerWidth)
 			.attr('height', outerHeight);
-
-		this.highlight
-			.attr('height', height);
 
 		// x-axis
 		gXAxis
@@ -248,10 +215,10 @@
 				return (alt = !alt) ? 16: 4;
 			});
 
-		// y-axis
+		// y-axis (observed)
 		this.gY0Axis.call(y0Axis.ticks(10, 's'));
 
-		// y-axis
+		// y-axis (found)
 		this.gY1Axis.call(y1Axis.ticks(10, 's'))
 			.attr('transform', 'translate(' + width + ',0)');
 
@@ -262,9 +229,10 @@
 			.append('g')
 			.merge(gBars)
 				.each(function(d) {
-					// Create bars
-					d3.select(this).selectAll('rect').remove();
-					d3.select(this).append('rect').datum(d)
+					var group = d3.select(this);
+					group.selectAll('rect').remove();
+					// Observed bar
+					group.append('rect').datum(d)
 						.attr('x', function(d) {
 							return xScale(d.year);
 						})
@@ -276,7 +244,8 @@
 							return height - y0(d.observed);
 						})
 						.attr('fill', colors['observed']);
-					d3.select(this).append('rect').datum(d)
+					// Found bar
+					group.append('rect').datum(d)
 						.attr('x', function(d) {
 							return xScale(d.year) + xScale.bandwidth() /2 + xScale.padding();
 						})
@@ -289,6 +258,21 @@
 						})
 						.attr('fill', colors['found']);
 				});
+
+		// Update quantize scale for knob positioning
+		this.qScale = d3.scaleQuantize()
+			.domain([ 0, width ])
+			.range(data.map(function(d) {
+				return d.year;
+			}));
+
+		// Update knobs and highlight
+		if (isInit) {
+			this.updateYearRange(this.xMin, this.xMax);
+		} else {
+			this.updateYearRange();
+		}
+		this.highlight.attr('height', height);
 
 	};
 

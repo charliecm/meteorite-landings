@@ -42,21 +42,15 @@
 
 	/**
 	 * Updates and filters the data.
-	 * @param {String} discovery Name of disocvery type to filter.
+	 * @param {number} yearStart Start year.
+	 * @param {number} yearEnd End year.
 	 */
-	MassChart.prototype.updateData = function(discovery, yearStart, yearEnd) {
+	MassChart.prototype.updateData = function(yearStart, yearEnd) {
 		if (yearStart === yearEnd) {
 			yearEnd += 10;
 		}
 		this.data = this.originalData.filter(function(d) {
 			var include = true;
-			if (discovery === 'observed' && d.discovery !== 'observed') {
-				include = false;
-			}
-			if (discovery === 'found' && d.discovery !== 'found') {
-				include = false;
-			}
-
 			if (yearStart !== undefined &&
 				(d.year < yearStart ||
 				d.year > yearEnd)) {
