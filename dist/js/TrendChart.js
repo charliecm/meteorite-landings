@@ -40,13 +40,16 @@
 			}
 			counts[decade][d.discovery]++;
 		});
+		var keys = Object.keys(counts);
+		this.xMin = keys[0];
+		this.xMax = keys[keys.length - 1];
 		this.data = Object.values(counts);
 		this.updateData();
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
 		this.gWrap = this.svg.append('g');
 		this.gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
-		this.highlight = this.gWrap.append('rect')
+		var highlight = this.highlight = this.gWrap.append('rect')
 			.attr('class', 'highlight');
 		this.gXAxis = this.gWrap.append('g').attr('class', 'x-axis');
 		this.gXAxis.append('text')
@@ -55,7 +58,58 @@
 			.text('Year (by decades)');
 		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = this.gWrap.append('g').attr('class', 'bars');
-		createSlider.call(this, ele, this.highlight);
+		// Create range slider
+		var knobA = this.knobA = document.createElement('div');
+		var knobB = this.knobB = document.createElement('div');
+		knobA.className = knobB.className = 'trend-knob';
+		ele.append(knobA);
+		ele.append(knobB);
+		this.knobActive = null;
+		knobA.addEventListener('mousedown', function() {
+			this.knobActive = knobA;
+		}.bind(this));
+		knobB.addEventListener('mousedown', function() {
+			this.knobActive = knobB;
+		}.bind(this));
+		// Drag move - update knobs label and highlight
+		document.addEventListener('mousemove', function(event) {
+			var knob = this.knobActive;
+			if (!knob) return;
+			var bound = ele.getBoundingClientRect(),
+				offsetX = knob.clientWidth / 2,
+				xMin = bound.left - offsetX + MARGIN.left,
+				xMax = bound.right - offsetX - MARGIN.right,
+				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
+				year = this.qScale(x - this.xScale.bandwidth() / 2);
+			knob.style.transform = 'translate(' + x + 'px,50%)';
+			knob.textContent = year;
+			highlight
+				.attr('x', getKnobX(knobA))
+				.attr('width', getKnobX(knobB) - getKnobX(knobA));
+		}.bind(this));
+		// Drag release - snap to nearest year band
+		document.addEventListener('mouseup', function() {
+			var knob = this.knobActive;
+			if (!knob) return;
+			var bound = ele.getBoundingClientRect(),
+				offsetX = knob.clientWidth / 2,
+				xMin = bound.left - offsetX + MARGIN.left,
+				xMax = bound.right - offsetX - MARGIN.right,
+				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
+				xScale = this.xScale,
+				bandwidth = xScale.bandwidth(),
+				year = this.qScale(x - bandwidth / 2),
+				endX = xScale(year) + bandwidth / 2;
+			if (knob === knobB) {
+				endX += bandwidth;
+			}
+			knob.style.transform = 'translate(' + endX + 'px,50%)';
+			knob.textContent = year;
+			highlight
+				.attr('x', getKnobX(knobA))
+				.attr('width', getKnobX(knobB) - getKnobX(knobA));
+			this.knobActive = null;
+		}.bind(this));
 		// Add bin colors
 		this.colors = [];
 		for (var i in bins) {
@@ -63,59 +117,55 @@
 		}
 	}
 
-	function createSlider(ele, highlight) {
-		var knobA = document.createElement('div');
-		knobA.className = 'trend-knob';
-		knobA.textContent = '1930';
-		ele.append(knobA);
-		var knobB = document.createElement('div');
-		knobB.className = 'trend-knob';
-		knobB.textContent = '1930';
-		ele.append(knobB);
-		var dragEle = null;
-		knobA.addEventListener('mousedown', function() {
-			dragEle = this;
-		});
-		knobB.addEventListener('mousedown', function() {
-			dragEle = this;
-		});
-		document.addEventListener('mousemove', function(event) {
-			if (!dragEle) return;
-			var bound = ele.getBoundingClientRect(),
-				offsetX = dragEle.clientWidth / 2,
-				xMin = bound.left - offsetX + MARGIN.left,
-				xMax = bound.right - offsetX - MARGIN.right,
-				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax),
-				year = this.qScale(x - bound.left);
-			// console.log(x, bound.left, MARGIN.left);
-			dragEle.style.transform = 'translate(' + x + 'px,0)';
-			dragEle.textContent = year;
-			highlight
-				.attr('x', getKnobX(knobA))
-				.attr('width', getKnobX(knobB) - getKnobX(knobA));
-		}.bind(this));
-		document.addEventListener('mouseup', function() {
-			if (!dragEle) return;
-			var bound = ele.getBoundingClientRect(),
-				x = getKnobX(dragEle) - bound.left + MARGIN.left,
-				year = this.qScale(x),
-				endX = this.xScale(year) + bound.left + this.xScale.bandwidth();
-			// console.log('b', x);
-			if (dragEle === knobB) {
-				endX += this.xScale.bandwidth();
-			}
-			dragEle.style.transform = 'translate(' + endX + 'px,0)';
-			dragEle.textContent = year;
-			highlight
-				.attr('x', getKnobX(knobA))
-				.attr('width', getKnobX(knobB) - getKnobX(knobA));
-			dragEle = null;
-		}.bind(this));
+	/**
+	 * Gets the knob position mapped to highlight boundary..
+	 * @param {HTMLElement} knob Knob element.
+	 * @return {number} Knob x-position.
+	 */
+	function getKnobX(knob) {
+		var bound = knob.parentNode.getBoundingClientRect();
+		return knob.getBoundingClientRect().left + knob.clientWidth / 2 - bound.left - MARGIN.left;
 	}
 
-	function getKnobX(ele) {
-		return ele.getBoundingClientRect().left - MARGIN.left - MARGIN.right;
-	}
+	/**
+	 * Updates the knobs and highlight to match specified year range. If range
+	 * is empty, updates the knob position to current year range.
+	 * @param {String} start Starting year (decade).
+	 * @param {String} end Ending year (decade).
+	 */
+	TrendChart.prototype.updateYearRange = function(start, end) {
+		var knobA = this.knobA,
+			knobB = this.knobB,
+			xScale = this.xScale,
+			bandwidth = xScale.bandwidth(),
+			startStr = start || knobA.textContent,
+			endStr = end || knobB.textContent ,
+			xA = xScale(startStr) + bandwidth / 2,
+			xB = xScale(endStr) + bandwidth * 1.5;
+		knobA.style.transform = 'translate(' + xA + 'px,50%)';
+		knobA.textContent = startStr;
+		knobB.style.transform = 'translate(' + xB + 'px,50%)';
+		knobB.textContent = endStr;
+		this.highlight
+			.attr('x', getKnobX(knobA))
+			.attr('width', getKnobX(knobB) - getKnobX(knobA));
+	};
+
+	/**
+	 * Returns the start of year range.
+	 * @return {number} Starting year.
+	 */
+	TrendChart.prototype.getYearStart = function() {
+		return this.knobA.textContent.substring(0, -1);
+	};
+
+	/**
+	 * Returns the end of year range.
+	 * @return {number} Ending year
+	 */
+	TrendChart.prototype.getYearEnd = function() {
+		return this.knobB.textContent.substring(0, -1);
+	};
 
 	/**
 	 * Updates and filters the data.
@@ -165,12 +215,19 @@
 			gXAxis = this.gXAxis,
 			alt = false;
 
-
+		// Update quantize scale for knob positioning
 		this.qScale = d3.scaleQuantize()
 			.domain([ 0, width ])
 			.range(data.map(function(d) {
 				return d.year;
 			}));
+
+		// Update knobs and highlight
+		if (isInit) {
+			this.updateYearRange(this.xMin, this.xMax);
+		} else {
+			this.updateYearRange();
+		}
 
 		// Resize canvas
 		this.svg

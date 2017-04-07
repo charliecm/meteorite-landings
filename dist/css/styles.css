@@ -140,6 +140,7 @@ a {
   padding-top: 0.125rem; }
 
 .trend-chart {
+  position: relative;
   height: 25rem; }
   .trend-chart text {
     font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
@@ -166,15 +167,16 @@ a {
     content: '';
     transform: translate(-50%, 0);
     position: absolute;
-    top: -1.5rem;
+    top: -1.375rem;
     left: 50%;
     display: block;
     border-left: solid 0.5625rem transparent;
     border-right: solid 0.5625rem transparent;
-    border-top: solid 0.75rem transparent;
-    border-bottom: solid 0.75rem #666; }
+    border-top: solid 0.6875rem transparent;
+    border-bottom: solid 0.6875rem #666; }
 
 .mass-chart {
+  position: relative;
   height: 18.75rem; }
   .mass-chart text {
     font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
