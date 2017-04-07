@@ -11,7 +11,7 @@
 	var MARGIN = {
 		top: 24,
 		left: 32,
-		right: 8,
+		right: 32,
 		bottom: 80
 	};
 
@@ -44,6 +44,8 @@
 		this.xMin = keys[0];
 		this.xMax = keys[keys.length - 1];
 		this.data = Object.values(counts);
+		this.y0Max = 0;
+		this.y1Max = 0;
 		this.updateData();
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
@@ -56,7 +58,8 @@
 			.attr('class', 'label')
 			.style('text-anchor', 'middle')
 			.text('Year (by decades)');
-		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
+		this.gY0Axis = this.gWrap.append('g').attr('class', 'y-axis');
+		this.gY1Axis = this.gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = this.gWrap.append('g').attr('class', 'bars');
 		// Create range slider
 		var knobA = this.knobA = document.createElement('div');
@@ -165,9 +168,11 @@
 		if (showObserved) keys.push('observed');
 		if (showFound) keys.push('found');
 		this.series = d3.stack().keys(keys)(data);
-		this.yMax = d3.max(data, function(d) {
-			return (showObserved ? d.observed : 0) +
-				(showFound ? d.found : 0);
+		this.y0Max = d3.max(data, function(d) {
+			return d.observed;
+		});
+		this.y1Max = d3.max(data, function(d) {
+			return d.found;
 		});
 	};
 
@@ -179,8 +184,6 @@
 
 		var ele = this.ele,
 			data = this.data,
-			series = this.series,
-			yMax = this.yMax,
 			colors = this.colors,
 			outerWidth = ele.clientWidth,
 			outerHeight = ele.clientHeight,
@@ -192,12 +195,17 @@
 					return d.year;
 				}))
 				.padding(0.5),
-			yScale = d3.scaleLinear()
+			y0 = d3.scaleLinear()
 				.range([ height, 0 ])
-				.domain([ 0, yMax ])
+				.domain([ 0, this.y0Max ])
+				.nice(),
+			y1 = d3.scaleLinear()
+				.range([ height, 0 ])
+				.domain([ 0, this.y1Max ])
 				.nice(),
 			xAxis = d3.axisBottom().scale(xScale),
-			yAxis = d3.axisLeft().scale(yScale),
+			y0Axis = d3.axisLeft().scale(y0),
+			y1Axis = d3.axisRight().scale(y1),
 			gXAxis = this.gXAxis,
 			alt = false;
 
@@ -241,43 +249,46 @@
 			});
 
 		// y-axis
-		this.gYAxis.call(yAxis.ticks(10, 's'));
+		this.gY0Axis.call(y0Axis.ticks(10, 's'));
 
-		// Series groups
-		var gSeries = this.gBars.selectAll('.series').data(series);
-		gSeries.exit().remove();
-		gSeries = gSeries.enter()
+		// y-axis
+		this.gY1Axis.call(y1Axis.ticks(10, 's'))
+			.attr('transform', 'translate(' + width + ',0)');
+
+		// Bars
+		var gBars = this.gBars.selectAll('g').data(data);
+		gBars.exit().remove();
+		gBars = gBars.enter()
 			.append('g')
-				.attr('class', 'series')
-			.merge(gSeries)
-				.attr('fill', function(d) {
-					return colors[d.key];
+			.merge(gBars)
+				.each(function(d) {
+					// Create bars
+					d3.select(this).selectAll('rect').remove();
+					d3.select(this).append('rect').datum(d)
+						.attr('x', function(d) {
+							return xScale(d.year);
+						})
+						.attr('y', function(d) {
+							return y0(d.observed);
+						})
+						.attr('width', xScale.bandwidth() / 2)
+						.attr('height', function(d) {
+							return height - y0(d.observed);
+						})
+						.attr('fill', colors['observed']);
+					d3.select(this).append('rect').datum(d)
+						.attr('x', function(d) {
+							return xScale(d.year) + xScale.bandwidth() /2 + xScale.padding();
+						})
+						.attr('y', function(d) {
+							return y1(d.found);
+						})
+						.attr('width', xScale.bandwidth() / 2)
+						.attr('height', function(d) {
+							return height - y1(d.found);
+						})
+						.attr('fill', colors['found']);
 				});
-
-		// Series bars
-		var gSeriesBars = gSeries.selectAll('g')
-			.data(function(d) {
-				return d;
-			});
-		gSeriesBars.exit().remove();
-		gSeriesBars = gSeriesBars.enter()
-			.append('g')
-			.merge(gSeriesBars)
-			.each(function(d) {
-				// Create bars
-				d3.select(this).select('rect').remove();
-				d3.select(this).append('rect').datum(d)
-					.attr('x', function(d) {
-						return xScale(d.data.year);
-					})
-					.attr('y', function(d) {
-						return yScale(d[1]);
-					})
-					.attr('width', xScale.bandwidth())
-					.attr('height', function(d) {
-						return yScale(d[0]) - yScale(d[1]);
-					});
-			});
 
 	};
 
