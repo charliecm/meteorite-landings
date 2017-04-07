@@ -109,6 +109,7 @@
 				.attr('x', getKnobX(knobA))
 				.attr('width', getKnobX(knobB) - getKnobX(knobA));
 			this.knobActive = null;
+			this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10));
 		}.bind(this));
 		// Add bin colors
 		this.colors = [];
@@ -149,22 +150,6 @@
 		this.highlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
-	};
-
-	/**
-	 * Returns the start of year range.
-	 * @return {number} Starting year.
-	 */
-	TrendChart.prototype.getYearStart = function() {
-		return this.knobA.textContent.substring(0, -1);
-	};
-
-	/**
-	 * Returns the end of year range.
-	 * @return {number} Ending year
-	 */
-	TrendChart.prototype.getYearEnd = function() {
-		return this.knobB.textContent.substring(0, -1);
 	};
 
 	/**

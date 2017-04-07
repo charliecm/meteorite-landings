@@ -44,23 +44,32 @@
 	 * Updates and filters the data.
 	 * @param {String} discovery Name of disocvery type to filter.
 	 */
-	MassChart.prototype.updateData = function(discovery) {
-		// TODO: Filter by discovery type and time
-		var scale = d3.scaleLog()
-				.domain([ BIN_MIN, BIN_MAX ]),
-			showObserved = (!discovery || discovery === 'observed'),
-			showFound = (!discovery || discovery === 'found'),
-			histogram = null;
+	MassChart.prototype.updateData = function(discovery, yearStart, yearEnd) {
+		if (yearStart === yearEnd) {
+			yearEnd += 10;
+		}
 		this.data = this.originalData.filter(function(d) {
-			if (showObserved && d.discovery == 'observed') {
-				return true;
+			var include = true;
+			if (discovery === 'observed' && d.discovery !== 'observed') {
+				include = false;
 			}
-			if (showFound && d.discovery == 'found') {
-				return true;
+			if (discovery === 'found' && d.discovery !== 'found') {
+				include = false;
 			}
-			return false;
+
+			if (yearStart !== undefined &&
+				(d.year < yearStart ||
+				d.year > yearEnd)) {
+				include = false;
+			}
+			return include;
 		});
-		histogram = d3.histogram()
+		var max = d3.max(this.data, function(d) {
+			return d.mass;
+		});
+		var scale = d3.scaleLog()
+			.domain([ BIN_MIN, Math.min(BIN_MAX, max) ]);
+		var histogram = d3.histogram()
 			.value(function(d) {
 				return d.mass;
 			})

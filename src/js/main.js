@@ -21,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		trendBinActive = '',
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
-		yearStart = 300,
-		yearEnd = 2010,
 		isDataReady = false;
 
 	// https://github.com/jashkenas/underscore/blob/master/underscore.js#L880
@@ -121,8 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * @param {number} end End year.
 	 */
 	function onYearChange(start, end) {
-		console.log('changed', start, end);
-		// TODO: Update mass chart and map
+		massChart.updateData(false, start, end);
+		massChart.update();
 	}
 
 	/**
