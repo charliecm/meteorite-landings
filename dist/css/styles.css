@@ -98,13 +98,16 @@ a {
   text-align: center;
   color: #ccc; }
 
+.chart-header {
+  padding-top: 1.5rem; }
+
+.chart-header--mass {
+  padding-top: 2.25rem; }
+
 .chart-header__title {
   font-size: 1.3125rem;
   font-weight: bold;
   margin-bottom: 0.75rem; }
-
-.chart-header {
-  padding-top: 1.5rem; }
 
 .trend-body {
   background-color: #222; }
@@ -148,6 +151,28 @@ a {
   .trend-chart .x-axis .label {
     font-size: 0.75rem;
     font-weight: bold; }
+  .trend-chart .highlight {
+    fill: #2C2C2C; }
+
+.trend-knob {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 0.5rem 0.4rem 0.4rem 0.4rem;
+  background-color: #666;
+  user-select: none;
+  cursor: col-resize; }
+  .trend-knob:before {
+    content: '';
+    transform: translate(-50%, 0);
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    display: block;
+    border-left: solid 0.5625rem transparent;
+    border-right: solid 0.5625rem transparent;
+    border-top: solid 0.75rem transparent;
+    border-bottom: solid 0.75rem #666; }
 
 .mass-chart {
   height: 18.75rem; }

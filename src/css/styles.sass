@@ -48,19 +48,22 @@ a
 	margin-top: rem(48px)
 	margin-bottom: rem(72px)
 	text-align: center
-	color: $color-highlight
+	color: $color-info
 
 // ----------------------------------------------------------------------------
 // Chart Header
 // ----------------------------------------------------------------------------
 
+.chart-header
+	padding-top: rem(24px)
+
+.chart-header--mass
+	padding-top: rem(36px)
+
 .chart-header__title
 	font-size: rem(21px)
 	font-weight: bold
 	margin-bottom: rem(12px)
-
-.chart-header
-	padding-top: rem(24px)
 
 // ----------------------------------------------------------------------------
 // Trend Section
@@ -109,6 +112,33 @@ a
 	.x-axis .label
 		font-size: rem(12px)
 		font-weight: bold
+	.highlight
+		fill: $color-highlight
+
+.trend-knob
+	position: absolute
+	left: 0
+	bottom: 0
+	padding: 0.5rem 0.4rem 0.4rem 0.4rem
+	background-color: $color-ticks
+	user-select: none
+	cursor: col-resize
+	&:before
+		content: ''
+		transform: translate(-50%, 0)
+		position: absolute
+		top: rem(-$trend-knob-arrow-height * 2)
+		left: 50%
+		display: block
+		border-left: solid rem($trend-knob-arrow-width) transparent
+		border-right: solid rem($trend-knob-arrow-width) transparent
+		border-top: solid rem($trend-knob-arrow-height) transparent
+		border-bottom: solid rem($trend-knob-arrow-height) $color-ticks
+
+
+// ----------------------------------------------------------------------------
+// Mass Chart
+// ----------------------------------------------------------------------------
 
 .mass-chart
 	height: rem(300px)
@@ -140,4 +170,4 @@ a
 	display: block
 	font-family: 'Menlo', monospace
 	font-size: rem(21px)
-	color: $color-highlight
+	color: $color-info

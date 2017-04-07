@@ -11,8 +11,8 @@
 	var MARGIN = {
 		top: 24,
 		left: 32,
-		right: 0,
-		bottom: 64
+		right: 8,
+		bottom: 80
 	};
 
 	/**
@@ -20,10 +20,14 @@
 	 * @param {HTMLElement} ele Container element to inject into.
 	 * @param {Array} data Chart data.
 	 * @param {Object} bins Name and colors mapped to series.
+	 * @param {function} onYearChange Callback when year range has changed.
 	 */
-	function TrendChart(ele, data, bins) {
+	function TrendChart(ele, data, bins, onYearChange) {
 		var counts = {};
 		this.ele = ele;
+		this.onYearChange = onYearChange || function(){};
+		this.xScale = null;
+		this.qScale = null;
 		// Parse data
 		data.forEach(function(d) {
 			var decade = (Math.floor(+d.year / 10) * 10) + 's';
@@ -42,6 +46,8 @@
 		this.svg = d3.select(ele).append('svg');
 		this.gWrap = this.svg.append('g');
 		this.gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
+		this.highlight = this.gWrap.append('rect')
+			.attr('class', 'highlight');
 		this.gXAxis = this.gWrap.append('g').attr('class', 'x-axis');
 		this.gXAxis.append('text')
 			.attr('class', 'label')
@@ -49,11 +55,66 @@
 			.text('Year (by decades)');
 		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = this.gWrap.append('g').attr('class', 'bars');
+		createSlider.call(this, ele, this.highlight);
 		// Add bin colors
 		this.colors = [];
 		for (var i in bins) {
 			this.colors[bins[i].name] = bins[i].color;
 		}
+	}
+
+	function createSlider(ele, highlight) {
+		var knobA = document.createElement('div');
+		knobA.className = 'trend-knob';
+		knobA.textContent = '1930';
+		ele.append(knobA);
+		var knobB = document.createElement('div');
+		knobB.className = 'trend-knob';
+		knobB.textContent = '1930';
+		ele.append(knobB);
+		var dragEle = null;
+		knobA.addEventListener('mousedown', function() {
+			dragEle = this;
+		});
+		knobB.addEventListener('mousedown', function() {
+			dragEle = this;
+		});
+		document.addEventListener('mousemove', function(event) {
+			if (!dragEle) return;
+			var bound = ele.getBoundingClientRect(),
+				offsetX = dragEle.clientWidth / 2,
+				xMin = bound.left - offsetX + MARGIN.left,
+				xMax = bound.right - offsetX - MARGIN.right,
+				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax),
+				year = this.qScale(x - bound.left);
+			// console.log(x, bound.left, MARGIN.left);
+			dragEle.style.transform = 'translate(' + x + 'px,0)';
+			dragEle.textContent = year;
+			highlight
+				.attr('x', getKnobX(knobA))
+				.attr('width', getKnobX(knobB) - getKnobX(knobA));
+		}.bind(this));
+		document.addEventListener('mouseup', function() {
+			if (!dragEle) return;
+			var bound = ele.getBoundingClientRect(),
+				x = getKnobX(dragEle) - bound.left + MARGIN.left,
+				year = this.qScale(x),
+				endX = this.xScale(year) + bound.left + this.xScale.bandwidth();
+			// console.log('b', x);
+			if (dragEle === knobB) {
+				endX += this.xScale.bandwidth();
+			}
+			dragEle.style.transform = 'translate(' + endX + 'px,0)';
+			dragEle.textContent = year;
+			highlight
+				.attr('x', getKnobX(knobA))
+				.attr('width', getKnobX(knobB) - getKnobX(knobA));
+			dragEle = null;
+		}.bind(this));
+	}
+
+	function getKnobX(ele) {
+		return ele.getBoundingClientRect().left - MARGIN.left - MARGIN.right;
 	}
 
 	/**
@@ -89,7 +150,7 @@
 			outerHeight = ele.clientHeight,
 			width  = outerWidth - MARGIN.left - MARGIN.right,
 			height = outerHeight - MARGIN.top - MARGIN.bottom,
-			xScale = d3.scaleBand()
+			xScale = this.xScale = d3.scaleBand()
 				.range([ 0, width ])
 				.domain(data.map(function(d) {
 					return d.year;
@@ -104,10 +165,20 @@
 			gXAxis = this.gXAxis,
 			alt = false;
 
+
+		this.qScale = d3.scaleQuantize()
+			.domain([ 0, width ])
+			.range(data.map(function(d) {
+				return d.year;
+			}));
+
 		// Resize canvas
 		this.svg
 			.attr('width', outerWidth)
 			.attr('height', outerHeight);
+
+		this.highlight
+			.attr('height', height);
 
 		// x-axis
 		gXAxis

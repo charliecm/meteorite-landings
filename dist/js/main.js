@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		trendBinActive = '',
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
+		yearStart = 300,
+		yearEnd = 2010,
 		isDataReady = false;
 
 	// https://github.com/jashkenas/underscore/blob/master/underscore.js#L880
@@ -114,6 +116,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
+	 * Handles year range change.
+	 * @param {number} start Start year.
+	 * @param {number} end End year.
+	 */
+	function onYearChange(start, end) {
+		console.log('changed', start, end);
+		// TODO: Update mass chart and map
+	}
+
+	/**
 	 * Fetches and parses the data.
 	 */
 	function fetch() {
@@ -128,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				};
 			})
 			.get(function(d) {
-				trendChart = new TrendChart(document.getElementById('trend-chart'), d, trendBins);
+				trendChart = new TrendChart(document.getElementById('trend-chart'), d, trendBins, onYearChange);
 				massChart = new MassChart(document.getElementById('mass-chart'), d);
 				isDataReady = true;
 				window.addEventListener('resize', debounce(updateVis, 500));
