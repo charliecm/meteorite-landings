@@ -77,10 +77,11 @@
 			if (!knob) return;
 			var bound = ele.getBoundingClientRect(),
 				offsetX = knob.clientWidth / 2,
-				xMin = bound.left - offsetX + MARGIN.left,
-				xMax = bound.right - offsetX - MARGIN.right,
+				bandwidth = this.xScale.bandwidth(),
+				xMin = (knob === knobB) ? getKnobX(knobA) + bound.left + bandwidth * 1.25 : bound.left - offsetX + MARGIN.left,
+				xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
 				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
-				year = this.qScale(x - this.xScale.bandwidth() / 2);
+				year = this.qScale(x - bandwidth / 2);
 			knob.style.transform = 'translate(' + x + 'px,50%)';
 			knob.textContent = year;
 			highlight
@@ -93,11 +94,11 @@
 			if (!knob) return;
 			var bound = ele.getBoundingClientRect(),
 				offsetX = knob.clientWidth / 2,
-				xMin = bound.left - offsetX + MARGIN.left,
-				xMax = bound.right - offsetX - MARGIN.right,
-				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
 				xScale = this.xScale,
 				bandwidth = xScale.bandwidth(),
+				xMin = (knob === knobB) ? getKnobX(knobA) + bound.left + bandwidth * 1.25 : bound.left - offsetX + MARGIN.left,
+				xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
+				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
 				year = this.qScale(x - bandwidth / 2),
 				endX = xScale(year) + bandwidth / 2;
 			if (knob === knobB) {
