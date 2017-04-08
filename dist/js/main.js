@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 */
 	function onYearChange(start, end) {
 		if (start === end) {
-			massRange.textContent = 'during ' + start + 's';
+			massRange.textContent = 'during the ' + start + 's';
 		} else {
 			massRange.textContent = 'from ' + start + 's to ' + end + 's';
 		}
