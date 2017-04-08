@@ -102,7 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * @param {number} end End year.
 	 */
 	function onYearChange(start, end) {
-		massRange.textContent = start + 's to ' + end + 's';
+		if (start === end) {
+			massRange.textContent = 'during ' + start + 's';
+		} else {
+			massRange.textContent = 'from ' + start + 's to ' + end + 's';
+		}
 		massChart.updateData(start, end);
 		massChart.update();
 	}

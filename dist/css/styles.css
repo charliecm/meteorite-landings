@@ -102,10 +102,10 @@ strong {
   color: #ccc; }
 
 .chart-header {
-  padding-top: 1.5rem; }
+  padding-top: 2rem; }
 
 .chart-header--mass {
-  padding-top: 2.25rem; }
+  padding-top: 2.5rem; }
 
 .chart-header__title {
   font-size: 1.3125rem;
@@ -199,12 +199,15 @@ strong {
       border-bottom-color: #444; }
 
 .trend-chart {
-  height: 20rem; }
+  height: 18.75rem; }
 
 .mass-chart {
   height: 16.25rem; }
   .mass-chart .bar {
     fill: #666; }
+
+.map-body {
+  background-color: #222; }
 
 .map {
   display: flex;
