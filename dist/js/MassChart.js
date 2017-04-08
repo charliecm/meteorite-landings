@@ -98,6 +98,12 @@
 		});
 		var scale = d3.scaleLog()
 			.domain([ Math.max(BIN_MIN, extent[0]), Math.min(BIN_MAX, extent[1]) ]);
+		// Add zero and lower threshold bins for histogram
+		var thresholds = scale.ticks();
+		thresholds.shift();
+		thresholds.unshift(0.01);
+		thresholds.unshift(0);
+		// Create histogram bins
 		var histogram = d3.histogram()
 			.value(function(d) {
 				return d.mass;
@@ -105,12 +111,21 @@
 			.domain(d3.extent(this.data, function(d) {
 				return d.mass;
 			}))
-			.thresholds(scale.ticks());
+			.thresholds(thresholds);
 		this.bins = histogram(this.data);
 	};
 
+	/**
+	 * Returns bin tick value.
+	 * @param {Array} bin Bin data.
+	 * @param {boolean} withUnit Display unit (g).
+	 * @return {String} Bin tick value.
+	 */
 	function getTick(bin, withUnit) {
 		var format = d3.format('.1s');
+		if (bin.x0 === 0) {
+			return 'Unknown';
+		}
 		return format(bin.x0) + (withUnit ? 'g' : '') + ' - ' + format(bin.x1) + (withUnit ? 'g' : '');
 	}
 
@@ -165,6 +180,7 @@
 			.attr('y', function() {
 				return (alt = !alt) ? 20 : 8;
 			});
+		alt = !alt;
 		gXAxis.selectAll('.tick line')
 			.attr('y2', function() {
 				return (alt = !alt) ? 16: 4;
