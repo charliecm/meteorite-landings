@@ -10,10 +10,10 @@
 	var MARGIN = {
 			top: 6,
 			left: 32,
-			right: 0,
+			right: 12,
 			bottom: 72
 		},
-		BIN_MIN = 100,
+		BIN_MIN = 1,
 		BIN_MAX = 10000;
 
 	/**
@@ -61,7 +61,9 @@
 				x = xScale(getTick(bin));
 			tip.style.opacity = 1;
 			tip.style.transform = 'translate(' + tipX + 'px,' + tipY +'px)';
-			tip.innerHTML = '<strong>' + getTick(bin, true) + '</strong><br>' + bin.length + ' meteorites';
+			var percentage = d3.format('.2%')(bin.length / this.data.length);
+			tip.innerHTML = '<strong>' + getTick(bin, true) + '</strong><br>' +
+				bin.length + ' meteorites (' + percentage + ')';
 			tipHighlight
 				.classed('-active', true)
 				.attr('x', x)
@@ -91,11 +93,11 @@
 			}
 			return include;
 		});
-		var max = d3.max(this.data, function(d) {
+		var extent = d3.extent(this.data, function(d) {
 			return d.mass;
 		});
 		var scale = d3.scaleLog()
-			.domain([ BIN_MIN, Math.min(BIN_MAX, max) ]);
+			.domain([ Math.max(BIN_MIN, extent[0]), Math.min(BIN_MAX, extent[1]) ]);
 		var histogram = d3.histogram()
 			.value(function(d) {
 				return d.mass;
