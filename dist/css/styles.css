@@ -74,6 +74,9 @@ body {
 a {
   color: inherit; }
 
+strong {
+  font-weight: bold; }
+
 .wrap {
   margin: 0 auto;
   padding-left: 32px;
@@ -88,7 +91,7 @@ a {
   font-weight: bold; }
 
 .header__description {
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   font-size: 1.3125rem;
   line-height: 1.6875rem; }
 
@@ -107,7 +110,39 @@ a {
 .chart-header__title {
   font-size: 1.3125rem;
   font-weight: bold;
-  margin-bottom: 0.75rem; }
+  margin-bottom: 1rem; }
+
+.chart-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.5rem 0.4rem 0.4rem 0.4rem;
+  background-color: white;
+  font-size: 0.75rem;
+  color: black;
+  pointer-events: none; }
+
+.chart {
+  position: relative; }
+  .chart text {
+    font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
+    font-size: 0.625rem; }
+  .chart .x-axis text, .chart .y-axis text {
+    fill: #666; }
+  .chart .x-axis line, .chart .x-axis path, .chart .y-axis line, .chart .y-axis path {
+    stroke: #666; }
+  .chart .x-axis .label {
+    font-size: 0.75rem;
+    font-weight: bold; }
+  .chart .bound {
+    fill: transparent; }
+  .chart .range-highlight {
+    fill: rgba(255, 255, 255, 0.03); }
+  .chart .tip-highlight {
+    fill: rgba(255, 255, 255, 0.06);
+    opacity: 0; }
+    .chart .tip-highlight.-active {
+      opacity: 1; }
 
 .trend-body {
   background-color: #222; }
@@ -115,15 +150,14 @@ a {
 .trend-legends {
   list-style: none;
   display: flex;
+  margin-top: -0.5rem;
   margin-bottom: 1rem; }
 
 .trend-legends__item {
   transition: opacity 0.25s;
   display: flex;
   flex-wrap: nowrap;
-  margin-right: 1.3125rem;
-  cursor: pointer;
-  user-select: none; }
+  margin-right: 1.3125rem; }
   .trend-legends__item.-disabled {
     opacity: 0.2; }
 
@@ -139,57 +173,38 @@ a {
   line-height: 1;
   padding-top: 0.125rem; }
 
-.trend-chart {
-  position: relative;
-  height: 25rem; }
-  .trend-chart text {
-    font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
-    font-size: 0.625rem; }
-  .trend-chart .x-axis text, .trend-chart .y-axis text {
-    fill: #666; }
-  .trend-chart .x-axis line, .trend-chart .x-axis path, .trend-chart .y-axis line, .trend-chart .y-axis path {
-    stroke: #666; }
-  .trend-chart .x-axis .label {
-    font-size: 0.75rem;
-    font-weight: bold; }
-  .trend-chart .highlight {
-    fill: #2C2C2C; }
-
 .trend-knob {
   position: absolute;
   left: 0;
   bottom: 0;
   padding: 0.5rem 0.4rem 0.4rem 0.4rem;
-  background-color: #666;
-  user-select: none;
-  cursor: col-resize; }
+  background-color: #555;
+  font-size: 0.75rem;
+  cursor: col-resize;
+  user-select: none; }
   .trend-knob:before {
     content: '';
     transform: translate(-50%, 0);
     position: absolute;
-    top: -1.375rem;
+    top: -1.3125rem;
     left: 50%;
     display: block;
     border-left: solid 0.5625rem transparent;
     border-right: solid 0.5625rem transparent;
     border-top: solid 0.6875rem transparent;
-    border-bottom: solid 0.6875rem #666; }
+    border-bottom: solid 0.6875rem #555; }
+  .trend-knob:nth-of-type(2) {
+    background-color: #444; }
+    .trend-knob:nth-of-type(2):before {
+      border-bottom-color: #444; }
+
+.trend-chart {
+  height: 20rem; }
 
 .mass-chart {
-  position: relative;
-  height: 18.75rem; }
-  .mass-chart text {
-    font-family: "Helvetica Nueue", Helvetica, Arial, san-serif;
-    font-size: 0.625rem; }
-  .mass-chart rect {
-    fill: white; }
-  .mass-chart .x-axis text, .mass-chart .y-axis text {
+  height: 16.25rem; }
+  .mass-chart .bar {
     fill: #666; }
-  .mass-chart .x-axis line, .mass-chart .x-axis path, .mass-chart .y-axis line, .mass-chart .y-axis path {
-    stroke: #666; }
-  .mass-chart .x-axis .label {
-    font-size: 0.75rem;
-    font-weight: bold; }
 
 .map {
   display: flex;

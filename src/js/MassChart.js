@@ -11,7 +11,7 @@
 			top: 6,
 			left: 32,
 			right: 0,
-			bottom: 64
+			bottom: 72
 		},
 		BIN_MIN = 100,
 		BIN_MAX = 10000;
@@ -23,21 +23,54 @@
 	 */
 	function MassChart(ele, data) {
 		this.ele = ele;
-		this.originalData = data;
+		this.dataOriginal = data;
 		this.data = null;
 		this.bins = null;
+		this.xScale = null;
+		this.qScale = null;
 		this.updateData();
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
-		this.gWrap = this.svg.append('g');
-		this.gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
-		this.gXAxis = this.gWrap.append('g').attr('class', 'x-axis');
+		var gWrap = this.gWrap = this.svg.append('g');
+		gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
+		this.wrapBound = gWrap.append('rect')
+			.attr('class', 'bound');
+		var tipHighlight = this.tipHighlight = gWrap.append('rect')
+			.attr('class', 'tip-highlight');
+		this.gXAxis = gWrap.append('g').attr('class', 'x-axis');
 		this.gXAxis.append('text')
 			.attr('class', 'label')
 			.style('text-anchor', 'middle')
 			.text('Mass (g)');
-		this.gYAxis = this.gWrap.append('g').attr('class', 'y-axis');
-		this.gBars = this.gWrap.append('g').attr('class', 'bars');
+		this.gYAxis = gWrap.append('g').attr('class', 'y-axis');
+		this.gBars = gWrap.append('g').attr('class', 'bars');
+		// Tooltip
+		var tip = document.createElement('div');
+		tip.className = 'chart-tip';
+		tip.style.opacity = 0;
+		ele.append(tip);
+		gWrap.on('mousemove', function() {
+			var event = d3.event,
+				bound = ele.getBoundingClientRect(),
+				xScale = this.xScale,
+				bandwidth = xScale.bandwidth(),
+				mouseX = event.pageX - bound.left,
+				tipX = mouseX - tip.clientWidth / 2,
+				tipY = event.pageY - bound.top - document.body.scrollTop - MARGIN.top - tip.clientHeight,
+				bin = this.qScale(mouseX - bandwidth / 2 - MARGIN.left),
+				x = xScale(getTick(bin));
+			tip.style.opacity = 1;
+			tip.style.transform = 'translate(' + tipX + 'px,' + tipY +'px)';
+			tip.innerHTML = '<strong>' + getTick(bin, true) + '</strong><br>' + bin.length + ' meteorites';
+			tipHighlight
+				.classed('-active', true)
+				.attr('x', x)
+				.attr('width', bandwidth + xScale.padding());
+		}.bind(this));
+		gWrap.on('mouseout', function() {
+			tip.style.opacity = 0;
+			tipHighlight.classed('-active', false);
+		});
 	}
 
 	/**
@@ -49,7 +82,7 @@
 		if (yearStart === yearEnd) {
 			yearEnd += 10;
 		}
-		this.data = this.originalData.filter(function(d) {
+		this.data = this.dataOriginal.filter(function(d) {
 			var include = true;
 			if (yearStart !== undefined &&
 				(d.year < yearStart ||
@@ -74,6 +107,11 @@
 		this.bins = histogram(this.data);
 	};
 
+	function getTick(bin, withUnit) {
+		var format = d3.format('.1s');
+		return format(bin.x0) + (withUnit ? 'g' : '') + ' - ' + format(bin.x1) + (withUnit ? 'g' : '');
+	}
+
 	/**
 	 * Updates the chart.
 	 * @param {boolean} isInit If true, skip transitions.
@@ -85,11 +123,7 @@
 			outerHeight = ele.clientHeight,
 			width  = outerWidth - MARGIN.left - MARGIN.right,
 			height = outerHeight - MARGIN.top - MARGIN.bottom,
-			getTick = function(bin) {
-				var format = d3.format('.1s');
-				return format(bin.x0) + ' - ' + format(bin.x1);
-			},
-			xScale = d3.scaleBand()
+			xScale = this.xScale = d3.scaleBand()
 				.domain(bins.map(function(d) {
 					return getTick(d);
 				}))
@@ -110,6 +144,12 @@
 		this.svg
 			.attr('width', outerWidth)
 			.attr('height', outerHeight);
+		this.wrapBound
+			.attr('width', width)
+			.attr('height', height);
+
+		// Resize highlight
+		this.tipHighlight.attr('height', height);
 
 		// x-axis
 		gXAxis
@@ -136,6 +176,7 @@
 		gBars.exit().remove();
 		gBars = gBars.enter()
 			.append('rect')
+				.attr('class', 'bar')
 			.merge(gBars)
 				.attr('x', function(d) {
 					return xScale(getTick(d));
@@ -147,6 +188,11 @@
 				.attr('height', function(d) {
 					return height - yScale(d.length);
 				});
+
+		// Update quantize scale for knob positioning
+		this.qScale = d3.scaleQuantize()
+			.domain([ 0, width ])
+			.range(bins);
 
 	};
 

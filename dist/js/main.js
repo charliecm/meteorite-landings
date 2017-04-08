@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			{
 				name: 'observed',
 				label: 'Observed',
-				color: '#F2DD1D'
+				color: 'rgb(255, 146, 0)'
 			},
 			{
 				name: 'found',
 				label: 'Found',
-				color: '#59AFFF'
+				color: 'rgb(0, 132, 255)'
 			}
 		],
 		trendChart, massChart,

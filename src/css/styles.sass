@@ -26,6 +26,9 @@ body
 a
 	color: inherit
 
+strong
+	font-weight: bold
+
 .wrap
 	margin: 0 auto
 	padding-left: $wrap-padding
@@ -40,7 +43,7 @@ a
 	font-weight: bold
 
 .header__description
-	margin-bottom: rem(16px)
+	margin-bottom: rem(32px)
 	font-size: rem(21px)
 	line-height: rem(27px)
 
@@ -51,7 +54,7 @@ a
 	color: $color-info
 
 // ----------------------------------------------------------------------------
-// Chart Header
+// Chart
 // ----------------------------------------------------------------------------
 
 .chart-header
@@ -63,7 +66,40 @@ a
 .chart-header__title
 	font-size: rem(21px)
 	font-weight: bold
-	margin-bottom: rem(12px)
+	margin-bottom: rem(16px)
+
+.chart-tip
+	position: absolute
+	top: 0
+	left: 0
+	padding: 0.5rem 0.4rem 0.4rem 0.4rem
+	background-color: white
+	font-size: rem(12px)
+	color: black
+	pointer-events: none
+
+.chart
+	position: relative
+	text
+		font-family: $font-primary
+		font-size: rem(10px)
+	.x-axis, .y-axis
+		text
+			fill: $color-ticks
+		line, path
+			stroke: $color-ticks
+	.x-axis .label
+		font-size: rem(12px)
+		font-weight: bold
+	.bound
+		fill: transparent
+	.range-highlight
+		fill: $color-highlight
+	.tip-highlight
+		fill: $color-tip-highlight
+		opacity: 0
+		&.-active
+			opacity: 1
 
 // ----------------------------------------------------------------------------
 // Trend Section
@@ -75,6 +111,7 @@ a
 .trend-legends
 	list-style: none
 	display: flex
+	margin-top: rem(-8px)
 	margin-bottom: rem(16px)
 
 .trend-legends__item
@@ -82,8 +119,6 @@ a
 	display: flex
 	flex-wrap: nowrap
 	margin-right: rem(21px)
-	cursor: pointer
-	user-select: none
 	&.-disabled
 		opacity: 0.2
 
@@ -99,63 +134,42 @@ a
 	line-height: 1
 	padding-top: rem(2px)
 
-.trend-chart
-	position: relative
-	height: rem(400px)
-	text
-		font-family: $font-primary
-		font-size: rem(10px)
-	.x-axis, .y-axis
-		text
-			fill: $color-ticks
-		line, path
-			stroke: $color-ticks
-	.x-axis .label
-		font-size: rem(12px)
-		font-weight: bold
-	.highlight
-		fill: $color-highlight
-
 .trend-knob
 	position: absolute
 	left: 0
 	bottom: 0
 	padding: 0.5rem 0.4rem 0.4rem 0.4rem
-	background-color: $color-ticks
-	user-select: none
+	background-color: $color-knob
+	font-size: rem(12px)
 	cursor: col-resize
+	user-select: none
 	&:before
 		content: ''
 		transform: translate(-50%, 0)
 		position: absolute
-		top: rem(-$trend-knob-arrow-height * 2)
+		top: rem(-$trend-knob-arrow-height * 2 + 1)
 		left: 50%
 		display: block
 		border-left: solid rem($trend-knob-arrow-width) transparent
 		border-right: solid rem($trend-knob-arrow-width) transparent
 		border-top: solid rem($trend-knob-arrow-height) transparent
-		border-bottom: solid rem($trend-knob-arrow-height) $color-ticks
+		border-bottom: solid rem($trend-knob-arrow-height) $color-knob
+	&:nth-of-type(2)
+		background-color: $color-knob-alt
+		&:before
+			border-bottom-color: $color-knob-alt
+
+.trend-chart
+	height: rem(320px)
 
 // ----------------------------------------------------------------------------
 // Mass Chart
 // ----------------------------------------------------------------------------
 
 .mass-chart
-	position: relative
-	height: rem(300px)
-	text
-		font-family: $font-primary
-		font-size: rem(10px)
-	rect
-		fill: white
-	.x-axis, .y-axis
-		text
-			fill: $color-ticks
-		line, path
-			stroke: $color-ticks
-	.x-axis .label
-		font-size: rem(12px)
-		font-weight: bold
+	height: rem(260px)
+	.bar
+		fill: $color-ticks
 
 // ----------------------------------------------------------------------------
 // Map Section

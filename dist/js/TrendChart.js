@@ -9,10 +9,10 @@
 (function() {
 
 	var MARGIN = {
-		top: 24,
+		top: 6,
 		left: 32,
 		right: 32,
-		bottom: 80
+		bottom: 72
 	};
 
 	/**
@@ -23,12 +23,12 @@
 	 * @param {function} onYearChange Callback when year range has changed.
 	 */
 	function TrendChart(ele, data, bins, onYearChange) {
-		var counts = {};
 		this.ele = ele;
 		this.onYearChange = onYearChange || function(){};
 		this.xScale = null;
 		this.qScale = null;
 		// Parse data
+		var counts = {};
 		data.forEach(function(d) {
 			var decade = (Math.floor(+d.year / 10) * 10) + 's';
 			if (!counts.hasOwnProperty(decade)) {
@@ -40,6 +40,7 @@
 			}
 			counts[decade][d.discovery]++;
 		});
+		this.dataOriginal = data;
 		this.data = Object.values(counts);
 		var keys = Object.keys(counts);
 		this.xMin = keys[0];
@@ -52,18 +53,49 @@
 		});
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
-		this.gWrap = this.svg.append('g');
-		this.gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
-		var highlight = this.highlight = this.gWrap.append('rect')
-			.attr('class', 'highlight');
-		this.gXAxis = this.gWrap.append('g').attr('class', 'x-axis');
+		var gWrap = this.gWrap = this.svg.append('g');
+		gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
+		this.wrapBound = gWrap.append('rect')
+			.attr('class', 'bound');
+		var rangeHighlight = this.rangeHighlight = gWrap.append('rect')
+			.attr('class', 'range-highlight');
+		var tipHighlight = this.tipHighlight = gWrap.append('rect')
+			.attr('class', 'tip-highlight');
+		this.gXAxis = gWrap.append('g').attr('class', 'x-axis');
 		this.gXAxis.append('text')
 			.attr('class', 'label')
 			.style('text-anchor', 'middle')
 			.text('Year (by decades)');
-		this.gY0Axis = this.gWrap.append('g').attr('class', 'y-axis');
-		this.gY1Axis = this.gWrap.append('g').attr('class', 'y-axis');
-		this.gBars = this.gWrap.append('g').attr('class', 'bars');
+		this.gY0Axis = gWrap.append('g').attr('class', 'y-axis');
+		this.gY1Axis = gWrap.append('g').attr('class', 'y-axis');
+		this.gBars = gWrap.append('g').attr('class', 'bars');
+		// Tooltip
+		var tip = document.createElement('div');
+		tip.className = 'chart-tip';
+		tip.style.opacity = 0;
+		ele.append(tip);
+		gWrap.on('mousemove', function() {
+			var event = d3.event,
+				bound = ele.getBoundingClientRect(),
+				xScale = this.xScale,
+				bandwidth = xScale.bandwidth(),
+				mouseX = event.pageX - bound.left,
+				tipX = mouseX - tip.clientWidth / 2,
+				tipY = event.pageY - bound.top - document.body.scrollTop - MARGIN.top - tip.clientHeight,
+				d = this.qScale(mouseX - bandwidth / 2 - MARGIN.left),
+				x = xScale(d.year);
+			tip.style.opacity = 1;
+			tip.style.transform = 'translate(' + tipX + 'px,' + tipY +'px)';
+			tip.innerHTML = '<strong>' + d.year + '</strong><br>' + d.observed + ' observed<br>' + d.found + ' found';
+			tipHighlight
+				.classed('-active', true)
+				.attr('x', x)
+				.attr('width', bandwidth + xScale.padding());
+		}.bind(this));
+		gWrap.on('mouseout', function() {
+			tip.style.opacity = 0;
+			tipHighlight.classed('-active', false);
+		});
 		// Create range slider
 		var knobA = this.knobA = document.createElement('div');
 		var knobB = this.knobB = document.createElement('div');
@@ -87,10 +119,10 @@
 				xMin = (knob === knobB) ? getKnobX(knobA) + bound.left + bandwidth * 1.25 : bound.left - offsetX + MARGIN.left,
 				xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
 				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
-				year = this.qScale(x - bandwidth / 2);
+				d = this.qScale(x - bandwidth / 2);
 			knob.style.transform = 'translate(' + x + 'px,50%)';
-			knob.textContent = year;
-			highlight
+			knob.textContent = d.year;
+			rangeHighlight
 				.attr('x', getKnobX(knobA))
 				.attr('width', getKnobX(knobB) - getKnobX(knobA));
 			event.preventDefault();
@@ -106,14 +138,14 @@
 				xMin = (knob === knobB) ? getKnobX(knobA) + bound.left + bandwidth * 1.25 : bound.left - offsetX + MARGIN.left,
 				xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
 				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
-				year = this.qScale(x - bandwidth / 2),
-				endX = xScale(year) + bandwidth / 2;
+				d = this.qScale(x - bandwidth / 2),
+				endX = xScale(d.year) + bandwidth / 2;
 			if (knob === knobB) {
 				endX += bandwidth;
 			}
 			knob.style.transform = 'translate(' + endX + 'px,50%)';
-			knob.textContent = year;
-			highlight
+			knob.textContent = d.year;
+			rangeHighlight
 				.attr('x', getKnobX(knobA))
 				.attr('width', getKnobX(knobB) - getKnobX(knobA));
 			this.knobActive = null;
@@ -155,7 +187,7 @@
 		knobA.textContent = startStr;
 		knobB.style.transform = 'translate(' + xB + 'px,50%)';
 		knobB.textContent = endStr;
-		this.highlight
+		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
 	};
@@ -197,6 +229,13 @@
 		this.svg
 			.attr('width', outerWidth)
 			.attr('height', outerHeight);
+		this.wrapBound
+			.attr('width', width)
+			.attr('height', height);
+
+		// Resize highlight areas
+		this.rangeHighlight.attr('height', height);
+		this.tipHighlight.attr('height', height);
 
 		// x-axis
 		gXAxis
@@ -262,17 +301,14 @@
 		// Update quantize scale for knob positioning
 		this.qScale = d3.scaleQuantize()
 			.domain([ 0, width ])
-			.range(data.map(function(d) {
-				return d.year;
-			}));
+			.range(data);
 
-		// Update knobs and highlight
+		// Update year range knobs
 		if (isInit) {
 			this.updateYearRange(this.xMin, this.xMax);
 		} else {
 			this.updateYearRange();
 		}
-		this.highlight.attr('height', height);
 
 	};
 
