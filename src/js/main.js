@@ -10,18 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
 	var dataURL = 'data.csv',
 		trendBins = [
 			{
-				name: 'observed',
-				label: 'Observed',
-				color: 'rgb(255, 146, 0)'
-			},
-			{
 				name: 'found',
 				label: 'Found',
 				color: 'rgb(0, 132, 255)'
+			},
+			{
+				name: 'observed',
+				label: 'Observed',
+				color: 'rgb(255, 146, 0)'
 			}
 		],
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
+		massRange = document.getElementById('mass-range'),
 		isDataReady = false;
 
 	// https://github.com/jashkenas/underscore/blob/master/underscore.js#L880
@@ -101,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * @param {number} end End year.
 	 */
 	function onYearChange(start, end) {
+		massRange.textContent = start + 's to ' + end + 's';
 		massChart.updateData(start, end);
 		massChart.update();
 	}

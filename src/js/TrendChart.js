@@ -34,8 +34,8 @@
 			if (!counts.hasOwnProperty(decade)) {
 				counts[decade] = {
 					year: decade,
-					observed: 0,
-					found: 0
+					found: 0,
+					observed: 0
 				};
 			}
 			counts[decade][d.discovery]++;
@@ -46,10 +46,10 @@
 		this.xMin = keys[0];
 		this.xMax = keys[keys.length - 1];
 		this.y0Max = d3.max(this.data, function(d) {
-			return d.observed;
+			return d.found;
 		});
 		this.y1Max = d3.max(this.data, function(d) {
-			return d.found;
+			return d.observed;
 		});
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
@@ -65,7 +65,7 @@
 		this.gXAxis.append('text')
 			.attr('class', 'label')
 			.style('text-anchor', 'middle')
-			.text('Year (by decades)');
+			.text('Decade');
 		this.gY0Axis = gWrap.append('g').attr('class', 'y-axis');
 		this.gY1Axis = gWrap.append('g').attr('class', 'y-axis');
 		this.gBars = gWrap.append('g').attr('class', 'bars');
@@ -86,7 +86,7 @@
 				x = xScale(d.year);
 			tip.style.opacity = 1;
 			tip.style.transform = 'translate(' + tipX + 'px,' + tipY +'px)';
-			tip.innerHTML = '<strong>' + d.year + '</strong><br>' + d.observed + ' observed<br>' + d.found + ' found';
+			tip.innerHTML = '<strong>' + d.year + '</strong><br>' + d.found + ' found<br>' + d.observed + ' observed';
 			tipHighlight
 				.classed('-active', true)
 				.attr('x', x)
@@ -139,7 +139,7 @@
 				xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
 				x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
 				d = this.qScale(x - bandwidth / 2),
-				endX = xScale(d.year) + bandwidth / 2;
+				endX = xScale(d.year) + bandwidth + xScale.padding();
 			if (knob === knobB) {
 				endX += bandwidth;
 			}
@@ -181,8 +181,8 @@
 			bandwidth = xScale.bandwidth(),
 			startStr = start || knobA.textContent,
 			endStr = end || knobB.textContent ,
-			xA = xScale(startStr) + bandwidth / 2,
-			xB = xScale(endStr) + bandwidth * 1.5;
+			xA = xScale(startStr) + bandwidth,
+			xB = xScale(endStr) + bandwidth * 2 + xScale.padding();
 		knobA.style.transform = 'translate(' + xA + 'px,50%)';
 		knobA.textContent = startStr;
 		knobB.style.transform = 'translate(' + xB + 'px,50%)';
@@ -190,6 +190,7 @@
 		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
+		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10));
 	};
 
 	/**
@@ -254,10 +255,10 @@
 				return (alt = !alt) ? 16: 4;
 			});
 
-		// y-axis (observed)
+		// y-axis (found)
 		this.gY0Axis.call(y0Axis.ticks(10, 's'));
 
-		// y-axis (found)
+		// y-axis (observed)
 		this.gY1Axis.call(y1Axis.ticks(10, 's'))
 			.attr('transform', 'translate(' + width + ',0)');
 
@@ -270,32 +271,32 @@
 				.each(function(d) {
 					var group = d3.select(this);
 					group.selectAll('rect').remove();
-					// Observed bar
+					// Found bar
 					group.append('rect').datum(d)
 						.attr('x', function(d) {
 							return xScale(d.year);
 						})
 						.attr('y', function(d) {
-							return y0(d.observed);
+							return y0(d.found);
 						})
 						.attr('width', xScale.bandwidth() / 2)
 						.attr('height', function(d) {
-							return height - y0(d.observed);
+							return height - y0(d.found);
 						})
-						.attr('fill', colors['observed']);
-					// Found bar
+						.attr('fill', colors['found']);
+					// Observed bar
 					group.append('rect').datum(d)
 						.attr('x', function(d) {
 							return xScale(d.year) + xScale.bandwidth() /2 + xScale.padding();
 						})
 						.attr('y', function(d) {
-							return y1(d.found);
+							return y1(d.observed);
 						})
 						.attr('width', xScale.bandwidth() / 2)
 						.attr('height', function(d) {
-							return height - y1(d.found);
+							return height - y1(d.observed);
 						})
-						.attr('fill', colors['found']);
+						.attr('fill', colors['observed']);
 				});
 
 		// Update quantize scale for knob positioning
