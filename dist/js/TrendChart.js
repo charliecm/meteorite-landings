@@ -86,7 +86,12 @@
 				x = xScale(d.year);
 			tip.style.opacity = 1;
 			tip.style.transform = 'translate(' + tipX + 'px,' + tipY +'px)';
-			tip.innerHTML = '<strong>' + d.year + '</strong><br>' + d.found + ' found<br>' + d.observed + ' observed';
+			var total = d.found + d.observed,
+				percentage = d3.format('.2%')(total / this.dataOriginal.length);
+			tip.innerHTML = '<strong>' + d.year + '</strong><br>' +
+				d.found + ' found<br>' +
+				d.observed + ' observed<br>' +
+				total + ' total (' + percentage + ')';
 			tipHighlight
 				.classed('-active', true)
 				.attr('x', x)
