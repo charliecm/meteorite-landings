@@ -74,7 +74,16 @@
 		tip.className = 'chart-tip';
 		tip.style.opacity = 0;
 		ele.append(tip);
+		gWrap.on('mousedown', function() {
+			// Select one decade
+			var event = d3.event,
+				bandwidth = this.xScale.bandwidth(),
+				mouseX = event.pageX - ele.getBoundingClientRect().left,
+				d = this.qScale(mouseX - bandwidth / 2 - MARGIN.left);
+			this.updateYearRange(d.year, d.year);
+		}.bind(this));
 		gWrap.on('mousemove', function() {
+			// Show tooltip
 			var event = d3.event,
 				bound = ele.getBoundingClientRect(),
 				xScale = this.xScale,
@@ -98,6 +107,7 @@
 				.attr('width', bandwidth + xScale.padding());
 		}.bind(this));
 		gWrap.on('mouseout', function() {
+			// Hide tooltip
 			tip.style.opacity = 0;
 			tipHighlight.classed('-active', false);
 		});
@@ -114,8 +124,8 @@
 		knobB.addEventListener('mousedown', function() {
 			this.knobActive = knobB;
 		}.bind(this));
-		// Drag move - update knobs label and highlight
 		document.addEventListener('mousemove', function(event) {
+			// Drag move - update knobs label and highlight
 			var knob = this.knobActive;
 			if (!knob) return;
 			var bound = ele.getBoundingClientRect(),
@@ -132,8 +142,8 @@
 				.attr('width', getKnobX(knobB) - getKnobX(knobA));
 			event.preventDefault();
 		}.bind(this));
-		// Drag release - snap to nearest year band
 		document.addEventListener('mouseup', function() {
+			// Drag release - snap to nearest year band
 			var knob = this.knobActive;
 			if (!knob) return;
 			var bound = ele.getBoundingClientRect(),
