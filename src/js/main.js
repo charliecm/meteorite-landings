@@ -129,7 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				trendChart = new TrendChart(document.getElementById('trend-chart'), d, trendBins, onYearChange);
 				massChart = new MassChart(document.getElementById('mass-chart'), d);
 				isDataReady = true;
-				window.addEventListener('resize', debounce(updateVis, 500));
+				window.addEventListener('resize', debounce(function() {
+					updateVis();
+				}, 500));
 				updateVis(true);
 			});
 	}

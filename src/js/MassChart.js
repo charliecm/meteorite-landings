@@ -14,7 +14,8 @@
 			bottom: 72
 		},
 		BIN_MIN = 1,
-		BIN_MAX = 10000;
+		BIN_MAX = 10000,
+		TRANSITION_DURATION = 600;
 
 	/**
 	 * Creates a new instance of MassChart.
@@ -155,7 +156,8 @@
 			xAxis = d3.axisBottom().scale(xScale),
 			yAxis = d3.axisLeft().scale(yScale),
 			gXAxis = this.gXAxis,
-			alt = false;
+			alt = false,
+			duration = (isInit) ? 0 : TRANSITION_DURATION;
 
 		// Resize canvas
 		this.svg
@@ -199,13 +201,17 @@
 				.attr('x', function(d) {
 					return xScale(getTick(d));
 				})
-				.attr('y', function(d) {
-					return yScale(d.length);
-				})
 				.attr('width', xScale.bandwidth())
-				.attr('height', function(d) {
-					return height - yScale(d.length);
-				});
+				.attr('y', height)
+				.attr('height', 0)
+				.transition().duration(duration)
+					.attr('y', function(d) {
+						return yScale(d.length);
+					})
+					.attr('height', function(d) {
+						return height - yScale(d.length);
+					});
+
 
 		// Update quantize scale for knob positioning
 		this.qScale = d3.scaleQuantize()
