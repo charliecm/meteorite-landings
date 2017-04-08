@@ -180,7 +180,7 @@
 			.attr('y', function() {
 				return (alt = !alt) ? 20 : 8;
 			});
-		alt = !alt;
+		alt = false;
 		gXAxis.selectAll('.tick line')
 			.attr('y2', function() {
 				return (alt = !alt) ? 16: 4;
