@@ -34,8 +34,8 @@
 			if (!counts.hasOwnProperty(decade)) {
 				counts[decade] = {
 					year: decade,
-					found: 0,
-					observed: 0
+					observed: 0,
+					found: 0
 				};
 			}
 			counts[decade][d.discovery]++;
@@ -46,10 +46,10 @@
 		this.xMin = keys[0];
 		this.xMax = keys[keys.length - 1];
 		this.y0Max = d3.max(this.data, function(d) {
-			return d.found;
+			return d.observed;
 		});
 		this.y1Max = d3.max(this.data, function(d) {
-			return d.observed;
+			return d.found;
 		});
 		// Setup layout elements
 		this.svg = d3.select(ele).append('svg');
@@ -90,8 +90,8 @@
 			var total = d.found + d.observed,
 				percentage = d3.format('.2%')(total / this.dataOriginal.length);
 			tip.innerHTML = '<strong>' + d.year + '</strong><br>' +
-				d.found + ' found<br>' +
 				d.observed + ' observed<br>' +
+				d.found + ' found<br>' +
 				total + ' total (' + percentage + ')';
 			tipHighlight
 				.classed('-active', true)
@@ -140,6 +140,16 @@
 	}
 
 	/**
+	 * Gets the knob position mapped to highlight boundary..
+	 * @param {HTMLElement} knob Knob element.
+	 * @return {number} Knob x-position.
+	 */
+	function getKnobX(knob) {
+		var bound = knob.parentNode.getBoundingClientRect();
+		return knob.getBoundingClientRect().left + knob.clientWidth / 2 - bound.left - MARGIN.left;
+	}
+
+	/**
 	 * Handles dragging of chart area to change year range.
 	 */
 	TrendChart.prototype.dragChart = function(event) {
@@ -175,6 +185,7 @@
 	 */
 	TrendChart.prototype.releaseChart = function(event) {
 		if (!this.isDragging) return;
+		this.isDragging = false;
 		var left = this.ele.getBoundingClientRect().left,
 			bandwidth = this.xScale.bandwidth(),
 			x1 = this.dragStart - left,
@@ -187,7 +198,8 @@
 		var d1 = this.qScale(x1 - bandwidth / 2 - MARGIN.left),
 			d2 = this.qScale(x2 - bandwidth / 2 - MARGIN.left);
 		this.updateYearRange(d1.year, d2.year);
-		this.isDragging = false;
+		var range = this.getYearRange();
+		this.onYearChange(range[0], range[1]);
 	};
 
 	/**
@@ -201,12 +213,15 @@
 			bandwidth = this.xScale.bandwidth(),
 			knobA = this.knobA,
 			knobB = this.knobB,
-			xMin = (knob === knobB) ? getKnobX(knobA) + bound.left + bandwidth * 1.25 : bound.left - offsetX + MARGIN.left,
-			xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
+			xMin = (knob === knobB) ? getKnobX(knobA) + bound.left : bound.left - offsetX + MARGIN.left,
+			xMax = (knob === knobA) ? getKnobX(knobB) + bound.left : bound.right - offsetX - MARGIN.right,
 			x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
 			d = this.qScale(x - bandwidth / 2);
-		knob.style.transform = 'translate(' + x + 'px,50%)';
+		// Update knob position
 		knob.textContent = d.year;
+		x += offsetX - knob.clientWidth / 2;
+		knob.style.transform = 'translate(' + x + 'px,50%)';
+		// Update highlight area
 		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
@@ -225,16 +240,19 @@
 			offsetX = knob.clientWidth / 2,
 			xScale = this.xScale,
 			bandwidth = xScale.bandwidth(),
-			xMin = (knob === knobB) ? getKnobX(knobA) + bound.left + bandwidth * 1.25 : bound.left - offsetX + MARGIN.left,
-			xMax = (knob === knobA) ? getKnobX(knobB) + bound.left - bandwidth / 2 : bound.right - offsetX - MARGIN.right,
+			xMin = (knob === knobB) ? getKnobX(knobA) + bound.left : bound.left - offsetX + MARGIN.left,
+			xMax = (knob === knobA) ? getKnobX(knobB) + bound.left : bound.right - offsetX - MARGIN.right,
 			x = Math.min(Math.max(event.pageX - offsetX, xMin), xMax) - bound.left,
 			d = this.qScale(x - bandwidth / 2),
-			endX = xScale(d.year) + bandwidth + xScale.padding();
+			xK = xScale(d.year) + MARGIN.left;
 		if (knob === knobB) {
-			endX += bandwidth;
+			xK += bandwidth + xScale.padding();
 		}
-		knob.style.transform = 'translate(' + endX + 'px,50%)';
+		// Update knob position
 		knob.textContent = d.year;
+		xK -= knob.clientWidth / 2;
+		knob.style.transform = 'translate(' + xK + 'px,50%)';
+		// Update highlight area
 		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
@@ -242,16 +260,6 @@
 		var range = this.getYearRange();
 		this.onYearChange(range[0], range[1]);
 	};
-
-	/**
-	 * Gets the knob position mapped to highlight boundary..
-	 * @param {HTMLElement} knob Knob element.
-	 * @return {number} Knob x-position.
-	 */
-	function getKnobX(knob) {
-		var bound = knob.parentNode.getBoundingClientRect();
-		return knob.getBoundingClientRect().left + knob.clientWidth / 2 - bound.left - MARGIN.left;
-	}
 
 	/**
 	 * Updates the knobs and highlight to match specified year range. If range
@@ -266,28 +274,17 @@
 			bandwidth = xScale.bandwidth(),
 			startStr = start || knobA.textContent,
 			endStr = end || knobB.textContent ,
-			xA = xScale(startStr) + bandwidth,
-			xB = xScale(endStr) + bandwidth * 2 + xScale.padding();
-		knobA.style.transform = 'translate(' + xA + 'px,50%)';
+			xA = xScale(startStr) + MARGIN.left,
+			xB = xScale(endStr) + MARGIN.left + bandwidth + xScale.padding();
 		knobA.textContent = startStr;
-		knobB.style.transform = 'translate(' + xB + 'px,50%)';
+		xA -= knobA.clientWidth / 2;
+		knobA.style.transform = 'translate(' + xA + 'px,50%)';
 		knobB.textContent = endStr;
+		xB -= knobB.clientWidth / 2;
+		knobB.style.transform = 'translate(' + xB + 'px,50%)';
 		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
-		var range = this.getYearRange();
-		this.onYearChange(range[0], range[1]);
-	};
-
-	/**
-	 * Returns the current year range.
-	 * @return {Array} Start and end year.
-	 */
-	TrendChart.prototype.getYearRange = function() {
-		return [
-			parseInt(this.knobA.textContent, 10),
-			parseInt(this.knobB.textContent, 10) + 9 // Decade to last year
-		];
 	};
 
 	/**
@@ -353,10 +350,10 @@
 				return (alt = !alt) ? 16: 4;
 			});
 
-		// y-axis (found)
+		// y-axis (observed)
 		this.gY0Axis.call(y0Axis.ticks(10, 's'));
 
-		// y-axis (observed)
+		// y-axis (found)
 		this.gY1Axis.call(y1Axis.ticks(10, 's'))
 			.attr('transform', 'translate(' + width + ',0)');
 
@@ -369,32 +366,32 @@
 				.each(function(d) {
 					var group = d3.select(this);
 					group.selectAll('rect').remove();
-					// Found bar
+					// Observed bar
 					group.append('rect').datum(d)
 						.attr('x', function(d) {
 							return xScale(d.year);
 						})
 						.attr('y', function(d) {
-							return y0(d.found);
+							return y0(d.observed);
 						})
 						.attr('width', xScale.bandwidth() / 2)
 						.attr('height', function(d) {
-							return height - y0(d.found);
+							return height - y0(d.observed);
 						})
-						.attr('fill', colors['found']);
-					// Observed bar
+						.attr('fill', colors['observed']);
+					// Found bar
 					group.append('rect').datum(d)
 						.attr('x', function(d) {
 							return xScale(d.year) + xScale.bandwidth() /2 + xScale.padding();
 						})
 						.attr('y', function(d) {
-							return y1(d.observed);
+							return y1(d.found);
 						})
 						.attr('width', xScale.bandwidth() / 2)
 						.attr('height', function(d) {
-							return height - y1(d.observed);
+							return height - y1(d.found);
 						})
-						.attr('fill', colors['observed']);
+						.attr('fill', colors['found']);
 				});
 
 		// Update quantize scale for knob positioning
@@ -409,6 +406,17 @@
 			this.updateYearRange();
 		}
 
+	};
+
+	/**
+	 * Returns the current year range.
+	 * @return {Array} Start and end year.
+	 */
+	TrendChart.prototype.getYearRange = function() {
+		return [
+			parseInt(this.knobA.textContent, 10),
+			parseInt(this.knobB.textContent, 10) + 9 // Decade to last year
+		];
 	};
 
 	window.TrendChart = TrendChart;

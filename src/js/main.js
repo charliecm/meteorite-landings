@@ -9,22 +9,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	var MAPBOX_API_TOKEN = 'pk.eyJ1IjoiY2hhcmxpZWNtIiwiYSI6ImNpenZ2ZG16cDAxaTMyd2s3b2YzMHpoaDYifQ.IqiI7-yLZR1HWB6MFDD04w',
 		MAP_LAYER_ID = 'meteorites',
-		MAP_HITBOX_SIZE = 8,
+		MAP_HITBOX_SIZE = 6,
 		MAP_ITEMS_CAP = 5;
 
 	var dataURL = 'data.csv',
 		bins = [
 			{
-				name: 'found',
-				label: 'Found',
-				color: 'rgb(0, 132, 255)'
+				name: 'observed',
+				label: 'Observed falling',
+				color: 'rgb(255, 146, 0)'
 			},
 			{
-				name: 'observed',
-				label: 'Observed',
-				color: 'rgb(255, 146, 0)'
+				name: 'found',
+				label: 'Found on the ground',
+				color: 'rgb(0, 132, 255)'
 			}
 		],
+		massFormat = d3.format('.0s'),
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
 		massRange = document.getElementById('mass-range'),
@@ -104,19 +105,27 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
-	 * Handles year range change.
+	 * Returns the year range text.
+	 * @param {number} start Start year.
+	 * @param {number} end End year.
+	 * @return {String} Year range text.
+	 */
+	function getYearText(start, end) {
+		if ((end - 9) === start) {
+			return 'during the ' + start + 's';
+		}
+		return 'from ' + start + 's to ' + end + 's';
+	}
+
+	/**
+	 * Updates vis to reflect year range.
 	 * @param {number} start Start year.
 	 * @param {number} end End year.
 	 */
-	function onYearChange(start, end) {
-		var yearRange = '';
-		if ((end - 9) === start) {
-			yearRange = 'during the ' + start + 's';
-		} else {
-			yearRange = 'from ' + start + 's to ' + end + 's';
-		}
-		massRange.textContent = yearRange;
-		mapRange.textContent = yearRange;
+	function updateYearRange(start, end) {
+		var text = getYearText(start, end);
+		massRange.textContent = text;
+		mapRange.textContent = text;
 		if (isMapLoaded) {
 			updateMap(start, end);
 		}
@@ -125,15 +134,35 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	/**
+	 * Updates vis to reflect mass range.
+	 * @param {number} min Min mass.
+	 * @param {number} max Max mass.
+	 */
+	function updateMassRange(min, max) {
+		var text = ', ' + (min === 0 ? 'up to ' : ('between ' + massFormat(min) + 'g to ')) + massFormat(max) + 'g',
+			yearRange = trendChart.getYearRange();
+		mapRange.textContent = getYearText(yearRange[0], yearRange[1]) + text;
+		if (isMapLoaded) {
+			updateMap(yearRange[0], yearRange[1], min, max);
+		}
+	}
+
+	/**
 	 * Updates the map with new dataset.
 	 * @param {number} start Start year.
 	 * @param {number} end End year.
 	 */
-	function updateMap(yearStart, yearEnd) {
-		map.setFilter(MAP_LAYER_ID, [ 'all',
+	function updateMap(yearStart, yearEnd, massMin, massMax) {
+		var filter = [
+			'all',
 			[ '>=', 'year', yearStart ],
 			[ '<=', 'year', yearEnd ]
-		]);
+		];
+		if (massMin !== undefined) {
+			filter.push([ '>=', 'mass', massMin ]);
+			filter.push([ '<=', 'mass', massMax ]);
+		}
+		map.setFilter(MAP_LAYER_ID, filter);
 	}
 
 	/**
@@ -173,9 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
 						property: 'mass',
 						stops: [
 							[ { zoom: 2, value: massMin }, 1.5 ],
-							[ { zoom: 2, value: massMax }, 24 ],
+							[ { zoom: 2, value: massMax }, 64 ],
 							[ { zoom: 16, value: massMin }, 6 ],
-							[ { zoom: 16, value: massMax }, 240 ]
+							[ { zoom: 16, value: massMax }, 256 ]
 						]
 					},
 					'circle-color': {
@@ -193,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				var p = e.point,
 					s = MAP_HITBOX_SIZE,
 					cap = MAP_ITEMS_CAP,
-					features = map.queryRenderedFeatures([[p.x - s, p.y - s], [p.x + s, p.y + s]], {
+					features = map.queryRenderedFeatures([ [ p.x - s, p.y - s ], [ p.x + s, p.y + s ] ], {
 						layers: [ MAP_LAYER_ID ]
 					}),
 					count = features.length,
@@ -210,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					var f = features[i],
 						props = f.properties,
 						year = props.year,
-						mass = props.mass ? (d3.format('.0s')(props.mass) + 'g') : 'Unknown',
+						mass = props.mass ? (massFormat(props.mass) + 'g') : 'Unknown',
 						name = props.name;
 					output += '<tr><td class="number">' + year + '</td>' +
 						'<td class="number">' + mass + '</td>' +
@@ -246,15 +275,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			.get(function(d) {
 				isDataReady = true;
 				// Initialize charts
-				trendChart = new TrendChart(document.getElementById('trend-chart'), d, bins, onYearChange);
-				massChart = new MassChart(document.getElementById('mass-chart'), d);
+				trendChart = new TrendChart(document.getElementById('trend-chart'), d, bins, updateYearRange);
+				massChart = new MassChart(document.getElementById('mass-chart'), d, updateMassRange);
 				window.addEventListener('resize', debounce(function() {
 					updateVis();
 				}, 500));
 				updateVis(true);
-				// Initialize map
+				// Update range texts
 				var year = trendChart.getYearRange(),
-					mass = massChart.getExtent();
+					mass = massChart.getMassRange();
+				updateYearRange(year[0], year[1]);
+				updateMassRange(mass[0], mass[1]);
+				// Initialize map
 				initMap(mass[0], mass[1], year[0], year[1]);
 			});
 	}
