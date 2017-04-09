@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	function updateMap(yearStart, yearEnd) {
 		map.setFilter(MAP_LAYER_ID, [ 'all',
 			[ '>=', 'year', yearStart ],
-			[ '<=', 'year', (yearEnd + 9) ]
+			[ '<=', 'year', yearEnd ]
 		]);
 	}
 

@@ -239,7 +239,8 @@
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
 		this.knobActive = null;
-		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10) + 9);
+		var range = this.getYearRange();
+		this.onYearChange(range[0], range[1]);
 	};
 
 	/**
@@ -274,11 +275,19 @@
 		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
-		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10) + 9);
+		var range = this.getYearRange();
+		this.onYearChange(range[0], range[1]);
 	};
 
+	/**
+	 * Returns the current year range.
+	 * @return {Array} Start and end year.
+	 */
 	TrendChart.prototype.getYearRange = function() {
-		return [ parseInt(this.knobA.textContent, 10), parseInt(this.knobB.textContent, 10) ];
+		return [
+			parseInt(this.knobA.textContent, 10),
+			parseInt(this.knobB.textContent, 10) + 9 // Decade to last year
+		];
 	};
 
 	/**
