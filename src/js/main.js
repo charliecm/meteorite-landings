@@ -2,13 +2,18 @@
  * Main Interactions
  */
 
-/* global d3, TrendChart, MassChart */
+/* global d3, TrendChart, MassChart, mapboxgl */
 
 document.addEventListener('DOMContentLoaded', function() {
 
-	// Data
+
+	var MAPBOX_API_TOKEN = 'pk.eyJ1IjoiY2hhcmxpZWNtIiwiYSI6ImNpenZ2ZG16cDAxaTMyd2s3b2YzMHpoaDYifQ.IqiI7-yLZR1HWB6MFDD04w',
+		MAP_LAYER_ID = 'meteorites',
+		MAP_HITBOX_SIZE = 8,
+		MAP_ITEMS_CAP = 5;
+
 	var dataURL = 'data.csv',
-		trendBins = [
+		bins = [
 			{
 				name: 'found',
 				label: 'Found',
@@ -23,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		trendChart, massChart,
 		trendLegends = document.getElementById('trend-legends'),
 		massRange = document.getElementById('mass-range'),
+		mapRange = document.getElementById('map-range'),
+		map = null,
+		isMapLoaded = false,
 		isDataReady = false;
 
 	// https://github.com/jashkenas/underscore/blob/master/underscore.js#L880
@@ -61,15 +69,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * Updates the legends list.
 	 */
 	function updateLegends() {
-		var bins = trendBins,
-			bin,
+		var bin,
 			items = [],
 			item, itemColor, itemLabel;
 		// Add new legends items
 		for (var i in bins) {
 			bin = bins[i];
 			item = document.createElement('li');
-			item.className = 'trend-legends__item ';
+			item.className = 'trend-legends__item';
 			items.push(item);
 			// Color
 			itemColor = document.createElement('span');
@@ -102,13 +109,124 @@ document.addEventListener('DOMContentLoaded', function() {
 	 * @param {number} end End year.
 	 */
 	function onYearChange(start, end) {
-		if (start === end) {
-			massRange.textContent = 'during the ' + start + 's';
+		var yearRange = '';
+		if ((end - 9) === start) {
+			yearRange = 'during the ' + start + 's';
 		} else {
-			massRange.textContent = 'from ' + start + 's to ' + end + 's';
+			yearRange = 'from ' + start + 's to ' + end + 's';
+		}
+		massRange.textContent = yearRange;
+		mapRange.textContent = yearRange;
+		if (isMapLoaded) {
+			updateMap(start, end);
 		}
 		massChart.updateData(start, end);
 		massChart.update();
+	}
+
+	/**
+	 * Updates the map with new dataset.
+	 * @param {number} start Start year.
+	 * @param {number} end End year.
+	 */
+	function updateMap(yearStart, yearEnd) {
+		map.setFilter(MAP_LAYER_ID, [ 'all',
+			[ '>=', 'year', yearStart ],
+			[ '<=', 'year', (yearEnd + 9) ]
+		]);
+	}
+
+	/**
+	 * Initializes the Mapbox instance.
+	 */
+	function initMap(massMin, massMax, yearStart, yearEnd) {
+		mapboxgl.accessToken = MAPBOX_API_TOKEN;
+		map = new mapboxgl.Map({
+			container: 'map',
+			style: 'mapbox://styles/charliecm/cj19p943000322rqls7wc2x3l',
+			center: [ -20, 8 ],
+			zoom: 2,
+			minZoom: 2,
+			scrollZoom: false
+		});
+		// Navigation control
+		var nav = new mapboxgl.NavigationControl();
+		map.addControl(nav, 'bottom-right');
+		// Create a popup, but don't add it to the map yet.
+		var popup = new mapboxgl.Popup({
+			closeButton: false,
+			closeOnClick: false
+		});
+		map.on('load', function () {
+			isMapLoaded = true;
+			// Add data layer
+			map.addLayer({
+				id: MAP_LAYER_ID,
+				type: 'circle',
+				source: {
+					type: 'vector',
+					url: 'mapbox://charliecm.56naccdu'
+				},
+				'source-layer': 'meteorite_landings-b4nxia',
+				paint: {
+					'circle-radius': {
+						property: 'mass',
+						stops: [
+							[ { zoom: 2, value: massMin }, 1.5 ],
+							[ { zoom: 2, value: massMax }, 24 ],
+							[ { zoom: 16, value: massMin }, 6 ],
+							[ { zoom: 16, value: massMax }, 240 ]
+						]
+					},
+					'circle-color': {
+						property: 'discovery',
+						type: 'categorical',
+						stops: [
+							[ bins[0].name, bins[0].color ],
+							[ bins[1].name, bins[1].color ]
+						]
+					},
+					'circle-opacity': 0.72
+				}
+			});
+			map.on('mousemove', function (e) {
+				var p = e.point,
+					s = MAP_HITBOX_SIZE,
+					cap = MAP_ITEMS_CAP,
+					features = map.queryRenderedFeatures([[p.x - s, p.y - s], [p.x + s, p.y + s]], {
+						layers: [ MAP_LAYER_ID ]
+					}),
+					count = features.length,
+					output = '<table class="map__tip-table"><thead><tr>' +
+						'<td>Year</td><td>Mass</td><td>Name</td>' +
+						'</tr></thead><tbody>';
+				if (popup.isOpen()) {
+					// Hide tooltip
+					popup.remove();
+				}
+				if (!count) return;
+				// Populate tooltip content
+				for (var i = 0; i < Math.min(count, cap); i++) {
+					var f = features[i],
+						props = f.properties,
+						year = props.year,
+						mass = props.mass ? (d3.format('.0s')(props.mass) + 'g') : 'Unknown',
+						name = props.name;
+					output += '<tr><td class="number">' + year + '</td>' +
+						'<td class="number">' + mass + '</td>' +
+						'<td>' + name + '</td></tr>';
+				}
+				if (count > cap) {
+					output += '<tr><td colspan="3">' + (count - cap) + ' more...</td></tr>';
+				}
+				output += '</tbody></table>';
+				// Show tooltip
+				popup.setLngLat(features[0].geometry.coordinates)
+					.setHTML(output)
+					.addTo(map);
+			});
+			updateMap(yearStart, yearEnd);
+		});
 	}
 
 	/**
@@ -126,13 +244,18 @@ document.addEventListener('DOMContentLoaded', function() {
 				};
 			})
 			.get(function(d) {
-				trendChart = new TrendChart(document.getElementById('trend-chart'), d, trendBins, onYearChange);
-				massChart = new MassChart(document.getElementById('mass-chart'), d);
 				isDataReady = true;
+				// Initialize charts
+				trendChart = new TrendChart(document.getElementById('trend-chart'), d, bins, onYearChange);
+				massChart = new MassChart(document.getElementById('mass-chart'), d);
 				window.addEventListener('resize', debounce(function() {
 					updateVis();
 				}, 500));
 				updateVis(true);
+				// Initialize map
+				var year = trendChart.getYearRange(),
+					mass = massChart.getExtent();
+				initMap(mass[0], mass[1], year[0], year[1]);
 			});
 	}
 

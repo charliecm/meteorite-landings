@@ -98,6 +98,7 @@ strong {
 .footer {
   margin-top: 3rem;
   margin-bottom: 4.5rem;
+  font-size: 0.75rem;
   text-align: center;
   color: #ccc; }
 
@@ -112,6 +113,11 @@ strong {
   font-weight: bold;
   margin-bottom: 1rem; }
 
+.chart-header__subtitle {
+  font-size: 0.75rem;
+  font-weight: normal;
+  opacity: 0.5; }
+
 .chart-tip {
   position: absolute;
   top: 0;
@@ -119,8 +125,10 @@ strong {
   padding: 0.5rem 0.4rem 0.4rem 0.4rem;
   background-color: white;
   font-size: 0.75rem;
+  line-height: 1rem;
   color: black;
-  pointer-events: none; }
+  pointer-events: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
 
 .chart {
   position: relative; }
@@ -207,16 +215,35 @@ strong {
     fill: #666; }
 
 .map-body {
-  background-color: #222; }
+  padding-top: 1.5rem; }
 
 .map {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 18.75rem; }
+  position: relative;
+  height: 32.5rem;
+  color: black; }
 
-.map__placeholder {
-  display: block;
-  font-family: 'Menlo', monospace;
-  font-size: 1.3125rem;
-  color: #ccc; }
+.map__tip-table thead {
+  font-weight: bold; }
+
+.map__tip-table td {
+  padding-right: 0.4rem; }
+  .map__tip-table td:last-child {
+    padding-right: 0; }
+
+.map__tip-table .number {
+  text-align: right; }
+
+.mapboxgl-popup {
+  pointer-events: none;
+  user-select: none;
+  cursor: pointer; }
+
+.mapboxgl-popup-content {
+  border-radius: 0;
+  padding: 0.5rem 0.4rem 0.4rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+
+.mapboxgl-ctrl-attrib {
+  user-select: none; }

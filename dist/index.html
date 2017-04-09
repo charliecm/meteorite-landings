@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="utf-8">
 	<title>Meteorite Landings</title>
+	<meta name='viewport' content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.35.0/mapbox-gl.css" rel="stylesheet">
 	<link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
 	<header class="header wrap">
 		<h1 class="header__title">
-			Meteorite Landings
+			Meteorites Explorer
 		</h1>
 		<p class="header__description">
-			Explore when and where rocks from space hit Earth from the year 300 to 2015. <a href="https://www.kaggle.com/nasa/meteorite-landings" target="_blank">Dataset</a> is from NASA, collected by <a href="http://www.meteoriticalsociety.org/" target="_blank">The Meteoritical Society</a>.
+			Explore when and where rocks from space landed on Earth from the year 300 to 2015. <a href="https://www.kaggle.com/nasa/meteorite-landings" target="_blank">Dataset</a> is from NASA, collected by <a href="http://www.meteoriticalsociety.org/" target="_blank">The Meteoritical Society</a>.
 		</p>
 	</header>
 	<main class="main">
@@ -34,7 +37,7 @@
 			<div class="wrap">
 				<div class="chart-header--mass chart-header">
 					<h2 class="chart-header__title">
-						Mass Distribution <span id="mass-range"></span>
+						Mass Distribution <span id="mass-range" class="chart-header__subtitle"></span>
 					</h2>
 				</div>
 				<div id="mass-chart" class="mass-chart chart"></div>
@@ -44,13 +47,11 @@
 			<div class="wrap">
 				<div class="chart-header">
 					<h2 class="chart-header__title">
-						Landings
+						Landings <span id="map-range" class="chart-header__subtitle"></span>
 					</h2>
 				</div>
 			</div>
-			<div id="map" class="map">
-				<span class="map__placeholder">&lt;map&gt;</span>
-			</div>
+			<div id="map" class="map"></div>
 		</div>
 	</main>
 	<footer class="footer wrap">
@@ -58,6 +59,7 @@
 			Created by <a href="https://twitter.com/@charliecm">Charlie Chao</a>.
 		</p>
 	</footer>
+	<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.35.0/mapbox-gl.js'></script>
 	<script src="js/d3.min.js"></script>
 	<script src="js/d3-shape.v1.min.js"></script>
 	<script src="js/d3-scale.v1.min.js"></script>

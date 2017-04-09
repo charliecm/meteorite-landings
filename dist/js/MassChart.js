@@ -94,7 +94,7 @@
 			}
 			return include;
 		});
-		var extent = d3.extent(this.data, function(d) {
+		var extent = this.extent = d3.extent(this.data, function(d) {
 			return d.mass;
 		});
 		var scale = d3.scaleLog()
@@ -114,6 +114,11 @@
 			}))
 			.thresholds(thresholds);
 		this.bins = histogram(this.data);
+		return extent;
+	};
+
+	MassChart.prototype.getExtent = function() {
+		return this.extent;
 	};
 
 	/**
@@ -211,7 +216,6 @@
 					.attr('height', function(d) {
 						return height - yScale(d.length);
 					});
-
 
 		// Update quantize scale for knob positioning
 		this.qScale = d3.scaleQuantize()

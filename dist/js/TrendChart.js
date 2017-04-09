@@ -57,7 +57,7 @@
 		gWrap.attr('transform', 'translate(' + MARGIN.left + ',' + MARGIN.top + ')');
 		this.wrapBound = gWrap.append('rect')
 			.attr('class', 'bound');
-		var rangeHighlight = this.rangeHighlight = gWrap.append('rect')
+		this.rangeHighlight = gWrap.append('rect')
 			.attr('class', 'range-highlight');
 		var tipHighlight = this.tipHighlight = gWrap.append('rect')
 			.attr('class', 'tip-highlight');
@@ -74,12 +74,6 @@
 		tip.className = 'chart-tip';
 		tip.style.opacity = 0;
 		ele.append(tip);
-		this.dragStart = 0;
-		this.isDragging = false;
-		gWrap.on('mousedown', function() {
-			this.dragStart = d3.event.pageX;
-			this.isDragging = true;
-		}.bind(this));
 		gWrap.on('mousemove', function() {
 			// Show tooltip
 			var event = d3.event,
@@ -121,6 +115,13 @@
 		}.bind(this));
 		knobB.addEventListener('mousedown', function() {
 			this.knobActive = knobB;
+		}.bind(this));
+		// Chart drag
+		this.dragStart = 0;
+		this.isDragging = false;
+		gWrap.on('mousedown', function() {
+			this.dragStart = d3.event.pageX;
+			this.isDragging = true;
 		}.bind(this));
 		// Drag events
 		document.addEventListener('mousemove', function(event) {
@@ -238,7 +239,7 @@
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
 		this.knobActive = null;
-		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10));
+		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10) + 9);
 	};
 
 	/**
@@ -273,7 +274,11 @@
 		this.rangeHighlight
 			.attr('x', getKnobX(knobA))
 			.attr('width', getKnobX(knobB) - getKnobX(knobA));
-		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10));
+		this.onYearChange(parseInt(knobA.textContent, 10), parseInt(knobB.textContent, 10) + 9);
+	};
+
+	TrendChart.prototype.getYearRange = function() {
+		return [ parseInt(this.knobA.textContent, 10), parseInt(this.knobB.textContent, 10) ];
 	};
 
 	/**

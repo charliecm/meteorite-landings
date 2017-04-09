@@ -50,6 +50,7 @@ strong
 .footer
 	margin-top: rem(48px)
 	margin-bottom: rem(72px)
+	font-size: rem(12px)
 	text-align: center
 	color: $color-info
 
@@ -68,6 +69,11 @@ strong
 	font-weight: bold
 	margin-bottom: rem(16px)
 
+.chart-header__subtitle
+	font-size: rem(12px)
+	font-weight: normal
+	opacity: 0.5
+
 .chart-tip
 	position: absolute
 	top: 0
@@ -75,8 +81,10 @@ strong
 	padding: 0.5rem 0.4rem 0.4rem 0.4rem
 	background-color: white
 	font-size: rem(12px)
+	line-height: rem(16px)
 	color: black
 	pointer-events: none
+	box-shadow: $tooltip-shadow
 
 .chart
 	position: relative
@@ -176,16 +184,34 @@ strong
 // ----------------------------------------------------------------------------
 
 .map-body
-	background-color: $color-bg-alt
+	padding-top: rem(24px)
 
 .map
-	display: flex
-	align-items: center
-	justify-content: center
-	height: rem(300px)
+	position: relative
+	height: rem(520px)
+	color: black
 
-.map__placeholder
-	display: block
-	font-family: 'Menlo', monospace
-	font-size: rem(21px)
-	color: $color-info
+.map__tip-table
+	thead
+		font-weight: bold
+	td
+		padding-right: 0.4rem
+		&:last-child
+			padding-right: 0
+	.number
+		text-align: right
+
+.mapboxgl-popup
+	pointer-events: none
+	user-select: none
+	cursor: pointer
+
+.mapboxgl-popup-content
+	border-radius: 0
+	padding: 0.5rem 0.4rem 0.4rem 0.4rem
+	font-size: rem(12px)
+	line-height: rem(16px)
+	box-shadow: $tooltip-shadow
+
+.mapboxgl-ctrl-attrib
+	user-select: none
