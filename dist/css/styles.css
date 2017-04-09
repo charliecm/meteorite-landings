@@ -72,7 +72,10 @@ body {
   background-color: #1b1b1b; }
 
 a {
+  display: inline-block;
   color: inherit; }
+  .no-touchevents a:hover {
+    color: #ccc; }
 
 strong {
   font-weight: bold; }
@@ -100,7 +103,7 @@ strong {
   margin-bottom: 4.5rem;
   font-size: 0.75rem;
   text-align: center;
-  color: #ccc; }
+  color: #666; }
 
 .chart-header {
   padding-top: 2rem; }
@@ -153,7 +156,7 @@ strong {
       opacity: 1; }
 
 .trend-body {
-  background-color: #222; }
+  background-color: #202020; }
 
 .trend-legends {
   list-style: none;
@@ -171,7 +174,7 @@ strong {
 
 .trend-legends__color {
   display: block;
-  width: 2.3125rem;
+  width: 2rem;
   height: 1rem;
   background-color: white; }
 

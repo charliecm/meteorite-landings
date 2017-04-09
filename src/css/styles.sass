@@ -24,7 +24,10 @@ body
 	background-color: $color-bg
 
 a
+	display: inline-block
 	color: inherit
+	.no-touchevents &:hover
+		color: #ccc
 
 strong
 	font-weight: bold
@@ -132,7 +135,7 @@ strong
 
 .trend-legends__color
 	display: block
-	width: rem(37px)
+	width: rem(32px)
 	height: rem(16px)
 	background-color: white
 

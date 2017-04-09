@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			center: [ -20, 8 ],
 			zoom: 2,
 			minZoom: 2,
+			maxZoom: 9,
 			scrollZoom: false
 		});
 		// Navigation control
@@ -202,9 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
 						property: 'mass',
 						stops: [
 							[ { zoom: 2, value: massMin }, 1.5 ],
-							[ { zoom: 2, value: massMax }, 64 ],
-							[ { zoom: 16, value: massMin }, 6 ],
-							[ { zoom: 16, value: massMax }, 256 ]
+							[ { zoom: 2, value: massMax }, 48 ],
+							[ { zoom: 12, value: massMin }, 6 ],
+							[ { zoom: 12, value: massMax }, 200 ]
 						]
 					},
 					'circle-color': {
@@ -240,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					}),
 					count = features.length,
 					output = '<table class="map__tip-table"><thead><tr>' +
-						'<td>Year</td><td>Mass</td><td>Name</td>' +
+						'<td>Year</td><td>Mass</td><td>Name</td><td>Discovery</td>' +
 						'</tr></thead><tbody>';
 				if (popup.isOpen()) {
 					// Hide tooltip
@@ -253,10 +254,12 @@ document.addEventListener('DOMContentLoaded', function() {
 						props = f.properties,
 						year = props.year,
 						mass = props.mass ? (massFormat(props.mass) + 'g') : 'Unknown',
-						name = props.name;
+						name = props.name,
+						discovery = props.discovery.charAt(0).toUpperCase() + props.discovery.slice(1);
 					output += '<tr><td class="number">' + year + '</td>' +
 						'<td class="number">' + mass + '</td>' +
-						'<td>' + name + '</td></tr>';
+						'<td>' + name + '</td>' +
+						'<td>' + discovery + '</td></tr>';
 				}
 				if (count > cap) {
 					output += '<tr><td colspan="3">' + (count - cap) + ' more...</td></tr>';
