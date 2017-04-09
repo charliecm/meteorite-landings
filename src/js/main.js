@@ -224,6 +224,19 @@ document.addEventListener('DOMContentLoaded', function() {
 					cap = MAP_ITEMS_CAP,
 					features = map.queryRenderedFeatures([ [ p.x - s, p.y - s ], [ p.x + s, p.y + s ] ], {
 						layers: [ MAP_LAYER_ID ]
+					}).filter(function(item, i, array) {
+						// Remove duplicates
+						var propsA = item.properties,
+							propsB, j,
+							count = array.length;
+						for (j = (i + 1); i < count - 1; i++) {
+							propsB = array[j].properties;
+							if (propsA.mass === propsB.mass &&
+								propsA.name === propsB.name) {
+								return false;
+							}
+						}
+						return true;
 					}),
 					count = features.length,
 					output = '<table class="map__tip-table"><thead><tr>' +
