@@ -112,7 +112,7 @@ strong {
 .chart-header {
   padding-top: 2rem; }
 
-.chart-header--mass {
+.chart-header--push {
   padding-top: 2.5rem; }
 
 .chart-header__title {
@@ -224,6 +224,9 @@ strong {
   height: 18.75rem; }
   .mass-chart .bar {
     fill: #666; }
+
+.map-body {
+  background-color: #202020; }
 
 .map {
   position: relative;
