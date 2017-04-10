@@ -31,6 +31,10 @@ a
 strong
 	font-weight: bold
 
+.text-info
+	font-size: rem(12px)
+	color: $color-info
+
 .wrap
 	margin: 0 auto
 	padding-left: $wrap-padding
@@ -46,12 +50,13 @@ strong
 
 .header__description
 	margin-bottom: rem(32px)
+	max-width: rem(620px)
 	font-size: rem(21px)
 	line-height: rem(27px)
 
 .footer
-	margin-top: rem(48px)
-	margin-bottom: rem(72px)
+	margin-top: rem(32px)
+	margin-bottom: rem(64px)
 	font-size: rem(12px)
 	text-align: center
 	color: $color-info
@@ -74,7 +79,7 @@ strong
 .chart-header__subtitle
 	font-size: rem(12px)
 	font-weight: normal
-	opacity: 0.5
+	opacity: 0.72
 
 .chart-tip
 	position: absolute
@@ -118,11 +123,14 @@ strong
 .trend-body
 	background-color: $color-bg-alt
 
+.trend-info
+	margin-bottom: rem(16px)
+
 .trend-legends
-	list-style: none
 	display: flex
 	margin-top: rem(-8px)
-	margin-bottom: rem(16px)
+	margin-bottom: rem(8px)
+	list-style: none
 
 .trend-legends__item
 	transition: opacity 0.25s
@@ -190,6 +198,29 @@ strong
 	position: relative
 	height: rem(520px)
 	color: black
+
+.map__info
+	display: flex
+	margin-top: rem(-10px)
+	margin-bottom: rem(8px)
+	align-items: center
+
+.map__btn-zoom
+	position: relative
+	top: -1px
+	display: block
+	margin-right: 0.5rem
+	padding: 0.5rem 0.4rem 0.4rem 0.4rem
+	background-color: $color-button
+	font-size: rem(12px)
+	text-decoration: none
+	color: white
+	.no-touchevents &:hover
+		background-color: $color-button-hover
+		color: white
+	&:active
+		top: 1px
+
 
 .map__tip-table
 	thead

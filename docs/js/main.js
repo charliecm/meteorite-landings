@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		massRange = document.getElementById('mass-range'),
 		mapRange = document.getElementById('map-range'),
 		map = null,
+		mapResetBtn = document.getElementById('map-zoom-reset'),
 		isMapLoaded = false,
 		isDataReady = false;
 
@@ -271,6 +272,10 @@ document.addEventListener('DOMContentLoaded', function() {
 					.addTo(map);
 			});
 			updateMap(yearStart, yearEnd);
+			mapResetBtn.addEventListener('click', function(event) {
+				map.zoomTo(2);
+				event.preventDefault();
+			});
 		});
 	}
 
