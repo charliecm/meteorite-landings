@@ -72,7 +72,6 @@ body {
   background-color: #1b1b1b; }
 
 a {
-  display: inline-block;
   color: inherit; }
   .no-touchevents a:hover {
     color: #ccc; }
@@ -148,9 +147,9 @@ strong {
   .chart .bound {
     fill: transparent; }
   .chart .range-highlight {
-    fill: rgba(255, 255, 255, 0.03); }
+    fill: rgba(255, 255, 255, 0.08); }
   .chart .tip-highlight {
-    fill: rgba(255, 255, 255, 0.06);
+    fill: rgba(255, 255, 255, 0.08);
     opacity: 0; }
     .chart .tip-highlight.-active {
       opacity: 1; }
@@ -214,7 +213,7 @@ strong {
   height: 18.75rem; }
 
 .mass-chart {
-  height: 16.25rem; }
+  height: 18.75rem; }
   .mass-chart .bar {
     fill: #666; }
 

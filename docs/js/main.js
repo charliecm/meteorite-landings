@@ -177,11 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			zoom: 2,
 			minZoom: 2,
 			maxZoom: 9,
-			scrollZoom: false
-		});
-		// Navigation control
-		var nav = new mapboxgl.NavigationControl();
-		map.addControl(nav, 'bottom-right');
+			scrollZoom: false,
+			attributionControl: false
+		})
+		.addControl(new mapboxgl.AttributionControl({ compact: true }))
+		.addControl(new mapboxgl.NavigationControl(), 'top-right');
 		// Create a popup, but don't add it to the map yet.
 		var popup = new mapboxgl.Popup({
 			closeButton: false,
